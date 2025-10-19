@@ -1,0 +1,10 @@
+# Screenshot Placeholder
+
+This directory should contain a screenshot.png file (1200x900px) showing a preview of your child theme.
+
+You can:
+1. Take a screenshot of your customized homepage
+2. Create a custom design preview
+3. Use the parent theme screenshot as a base and modify it
+
+The screenshot will appear in WordPress Admin → Appearance → Themes.
