@@ -1,0 +1,116 @@
+<?php
+/**
+ * The style "float" of the Dishes
+ *
+ * @package WordPress
+ * @subpackage ThemeREX Addons
+ * @since v1.6.09
+ */
+
+$args = get_query_var('trx_addons_args_sc_dishes');
+
+$meta = get_post_meta(get_the_ID(), 'trx_addons_options', true);
+$link = get_permalink();
+$featured_position = !empty($args['featured_position']) ? str_replace('top', 'left', $args['featured_position']) : 'left';
+
+$price_showed = false;
+
+if (!empty($args['slider'])) {
+	?><div class="slider-slide swiper-slide"><?php
+} else if ((int)$args['columns'] > 1) {
+	?><div class="<?php echo esc_attr(trx_addons_get_column_class(1, $args['columns'])); ?>"><?php
+}
+?>
+<div class="sc_dishes_item with_image<?php
+	if (isset($args['hide_excerpt']) && (int)$args['hide_excerpt']>0) echo ' without_content';
+	echo ' sc_dishes_item_featured_'.esc_attr($featured_position);
+	?>"<?php
+	if (!empty($args['popup'])) {
+		?> data-post_id="<?php echo esc_attr(get_the_ID()); ?>"<?php
+		?> data-post_type="<?php echo esc_attr(TRX_ADDONS_CPT_DISHES_PT); ?>"<?php
+	}
+	?>>
+	<?php
+	// Featured image
+	if ( has_post_thumbnail() && (empty($args['featured']) || $args['featured']=='image')) {
+		?><div class="sc_dishes_item_image"><?php
+			trx_addons_get_template_part('templates/tpl.featured.php',
+										'trx_addons_args_featured',
+										apply_filters('trx_addons_filter_args_featured', array(
+															'class' => 'sc_dishes_item_thumb',
+															'hover' => '',
+															'thumb_size' => apply_filters('trx_addons_filter_thumb_size', trx_addons_get_thumb_size('dishes'), 'dishes-float')
+															),
+														'dishes-float'
+														)
+										);
+			?>
+        <div class="sc_dishes_item_subtitle"><?php trx_addons_show_layout(trx_addons_get_post_terms(', ', get_the_ID(), TRX_ADDONS_CPT_DISHES_TAXONOMY));?></div>
+        </div><?php
+	}
+	?>	
+	<div class="sc_dishes_item_header">
+		<h5 class="sc_dishes_item_title<?php if (!$price_showed && trim($meta['price']) != '') echo ' with_price'; ?>"><a href="<?php echo esc_url($link); ?>"><?php
+			the_title();
+		?></a></h5>
+	</div><?php
+	if (!isset($args['hide_excerpt']) || (int)$args['hide_excerpt']==0) {
+		?><div class="sc_dishes_item_content"><?php the_excerpt(); ?></div>
+        <?php
+        // Price
+        if (trim($meta['price']) != '') {
+            ?><div class="sc_dishes_item_price"><?php echo esc_html($meta['price']); ?></div><?php
+        }
+        $price_showed = true;
+        ?>
+        <div class="sc_footer_dishes-meta">
+            <div class="footer_dishes-timing">
+                         <span class="dishes_timing_icon"><?php
+                             if (!empty($meta['time-icon'])) {
+                                 if (trx_addons_is_url($meta['icon'])) {
+                                     $meta['time-icon'] = basename($meta['time-icon']);
+                                 }
+                                 echo '<span class="'.$meta['time-icon'].'"></span>';
+                             }
+                             ?>
+                        </span>
+                <span class="dishes_timing_number"><?php
+                    if(!empty($meta['time'])){
+                        echo esc_html($meta['time']); }?>
+                        </span>
+            </div>
+            <div class="footer_dishes-ingridients">
+                     <span class="dishes_ingridients_icon"><?php
+                         if (!empty($meta['icon'])) {
+                             if (trx_addons_is_url($meta['icon'])) {
+                                 $meta['icon'] = basename($meta['icon']);
+                             }
+                             echo '<span class="'.$meta['icon'].'"></span>';
+                         }
+                         ?>
+                    </span>
+                <span class="dishes_item_number"><?php
+                    if(!empty($meta['number'])){
+                        echo esc_html($meta['number']); }?>
+                    </span>
+            </div>
+        </div>
+        <?php
+
+		if (!empty($args['more_text']) || (int)$meta['product'] > 0) {
+			?><div class="sc_dishes_item_button sc_item_button"><?php
+				if (!empty($args['more_text'])) {
+					?><a href="<?php echo esc_url($link); ?>" class="<?php echo esc_attr(apply_filters('trx_addons_filter_sc_item_link_classes', 'sc_button sc_button_simple sc_dishes_button_more', 'sc_dishes', $args)); ?>"><?php echo esc_html($args['more_text']); ?></a><?php
+				}
+				if ((int)$meta['product'] > 0) {
+					?><a href="<?php echo esc_url(get_permalink($meta['product'])); ?>" class="<?php echo esc_attr(apply_filters('trx_addons_filter_sc_item_link_classes', 'sc_button sc_button_simple sc_dishes_button_order', 'sc_dishes', $args)); ?>"><?php esc_html_e('Order now', 'rosalinda'); ?></a><?php
+				}
+				?>
+			</div><?php
+		}
+	}
+?></div><?php
+if (!empty($args['slider']) || (int)$args['columns'] > 1) {
+	?></div><?php
+}
+?>

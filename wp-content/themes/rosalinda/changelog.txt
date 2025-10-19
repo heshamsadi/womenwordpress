@@ -1,0 +1,68 @@
+Version 1.0.8
+    Added:
+    - Compatibility with Essential Grid 3.0.17
+
+Version 1.0.7
+	Fixed:
+		- Improve theme styles
+	Changed:
+        - Update demo data
+
+Version 1.0.6
+	Added:
+        - Smash Balloon Instagram Feed plugin
+		- Compatibility with Wordpress 6.0
+		- Compatibility with PHP 8.0
+	Fixed:
+		- Improve theme styles
+	Changed:
+        - Update demo data
+
+Version 1.0.5	
+	Fixed:
+        - Compatibility with Wordpress 5.8.3
+        - Update plugins to their latest versions
+        - Improve theme styles
+        - Compatibility with PHP 8.0
+    Added:
+        - ThemeREX Socials plugin
+    Changed:
+        - Update demo data
+    Removed:
+        - WPZOOM Instagram Widget plugin
+
+Version 1.0.4
+	Added:
+		- Compatibility with ThemeRex Updater plugin
+
+	Fixed: 
+		- Update plugins to their latest versions
+		- Improve theme styles
+
+	Changed:
+		- Update demo data
+
+
+Version 1.0.3
+	Fixed:
+	    - Themerex Addons vulnarability fixed
+
+
+Version 1.0.2
+	Fixed:
+		- Update scripts libraries 
+	  - Update plugins to their latest versions 
+	  - Compatibility with WPBakery page builder 6.0.3
+	 Changed:
+	 	- Update demo data
+	 Added:
+	 	- Add Shortcode prices
+
+
+Version 1.0.1
+  Fixed:
+  - Update plugins to their latest versions
+  - Scripts libraries updated
+  - Compatibility with PHP 7.3
+
+Version 1.0.0

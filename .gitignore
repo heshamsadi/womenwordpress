@@ -1,0 +1,136 @@
+# WordPress .gitignore
+# Created for women1.local project
+
+# WordPress Core Files
+/wp-admin/
+/wp-includes/
+/wp-*.php
+/xmlrpc.php
+/readme.html
+/license.txt
+
+# WordPress Config (contains sensitive info)
+wp-config.php
+wp-config-sample.php
+
+# Local development files
+local-xdebuginfo.php
+
+# Database exports
+*.sql
+*.sql.gz
+
+# Log files
+*.log
+/logs/
+error_log
+debug.log
+
+# Cache files
+/wp-content/cache/
+/wp-content/advanced-cache.php
+/wp-content/wp-cache-config.php
+
+# Backup files
+*.bak
+*~
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Node.js dependencies (if using build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build/compiled files
+/dist/
+/build/
+*.min.js
+*.min.css
+
+# WordPress uploads (optional - uncomment if you don't want to track uploads)
+# /wp-content/uploads/
+
+# Plugin files you don't control
+/wp-content/plugins/akismet/
+/wp-content/plugins/hello.php
+
+# WordPress maintenance and upgrade files
+.maintenance
+/wp-content/upgrade/
+
+# WordPress language files (auto-generated)
+/wp-content/languages/
+
+# Security plugins
+/wp-content/uploads/.htaccess
+
+# Local development environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Composer (if using)
+/vendor/
+composer.lock
+
+# WordPress CLI
+wp-cli.phar
+wp-cli.yml
+
+# Local by Flywheel specific
+local-phpinfo.php
+
+# Keep important directories but ignore their contents initially
+wp-content/themes/twentytwenty*/
+wp-content/themes/search-nulled-themes-remastered/
+
+# Keep your custom theme and child theme
+!wp-content/themes/rosalinda/
+!wp-content/themes/rosalinda-child/
+
+# Keep custom plugins
+!wp-content/plugins/custom-*/
+
+# Keep must-use plugins
+!wp-content/mu-plugins/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Large media files (adjust extensions as needed) 
+*.mov
+*.mp4
+*.avi
+*.wmv
+*.flv
+*.webm
+
+# Keep essential files
+!.gitignore
+!.gitkeep
+!index.php

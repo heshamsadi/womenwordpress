@@ -1,0 +1,60 @@
+a:72:{s:17:"trx_addons_action";s:0:"";s:24:"trx_addons_admin_message";s:0:"";s:30:"trx_addons_cpt_layouts_created";s:1:"1";s:25:"trx_addons_just_activated";s:2:"no";s:18:"trx_addons_options";a:63:{s:10:"debug_mode";i:0;s:28:"disable_widgets_block_editor";s:1:"1";s:19:"move_styles_to_head";s:1:"1";s:22:"move_scripts_to_footer";s:1:"1";s:19:"remove_ver_from_url";i:0;s:10:"ajax_views";i:0;s:12:"retina_ready";s:1:"1";s:14:"images_quality";s:2:"90";s:14:"page_preloader";s:4:"none";s:23:"page_preloader_bg_color";s:7:"#ffffff";s:20:"page_preloader_image";s:0:"";s:15:"scroll_progress";s:4:"hide";s:13:"scroll_to_top";s:1:"1";s:19:"animate_inner_links";i:0;s:16:"add_target_blank";i:0;s:12:"popup_engine";s:8:"magnific";s:10:"menu_cache";i:0;s:13:"menu_collapse";s:1:"1";s:18:"menu_collapse_icon";s:29:"trx_addons_icon-ellipsis-vert";s:21:"breadcrumbs_max_level";s:1:"3";s:14:"login_via_ajax";s:1:"1";s:17:"login_via_socials";s:0:"";s:29:"notify_about_new_registration";s:2:"no";s:20:"testimonials_disable";i:0;s:13:"sport_disable";i:0;s:14:"sport_favorite";s:0:"";s:18:"competitions_style";s:9:"default_3";s:16:"services_disable";i:0;s:14:"services_style";s:9:"default_2";s:13:"services_form";s:3:"589";s:14:"dishes_disable";i:0;s:12:"dishes_style";s:9:"default_2";s:11:"dishes_form";s:4:"none";s:21:"expand_content_dishes";i:0;s:15:"api_google_load";s:1:"1";s:10:"api_google";s:0:"";s:17:"api_google_marker";s:0:"";s:18:"api_google_cluster";s:0:"";s:20:"api_google_analitics";s:0:"";s:22:"api_google_remarketing";s:0:"";s:15:"api_yandex_load";s:1:"1";s:10:"api_yandex";s:0:"";s:17:"api_yandex_marker";s:0:"";s:18:"api_yandex_cluster";s:0:"";s:13:"api_fb_app_id";s:0:"";s:7:"socials";a:3:{i:0;a:3:{s:5:"title";s:0:"";s:3:"url";s:53:"https://www.facebook.com/AxiomThemes-505060569826537/";s:4:"name";s:13:"icon-facebook";}i:1;a:3:{s:5:"title";s:0:"";s:3:"url";s:31:"https://twitter.com/ThemesAxiom";s:4:"name";s:12:"icon-twitter";}i:2;a:3:{s:5:"title";s:0:"";s:3:"url";s:39:"https://www.instagram.com/axiom_themes/";s:4:"name";s:15:"icon-instagramm";}}s:5:"share";a:3:{i:0;a:3:{s:5:"title";s:0:"";s:3:"url";s:50:"http://www.facebook.com/sharer/sharer.php?u={link}";s:4:"name";s:24:"trx_addons_icon-facebook";}i:1;a:3:{s:5:"title";s:0:"";s:3:"url";s:56:"https://twitter.com/intent/tweet?text={title}&url={link}";s:4:"name";s:23:"trx_addons_icon-twitter";}i:2;a:3:{s:5:"title";s:0:"";s:3:"url";s:59:"http://www.tumblr.com/share?v=3&u={link}&t={title}&s={descr";s:4:"name";s:11:"icon-tumblr";}}s:11:"add_og_tags";s:1:"1";s:16:"emotions_allowed";i:0;s:8:"emotions";a:1:{i:0;a:2:{s:5:"title";s:0:"";s:4:"name";s:0:"";}}s:16:"scroll_to_anchor";s:1:"1";s:27:"update_location_from_anchor";i:0;s:11:"input_hover";s:7:"default";s:14:"layouts_create";s:0:"";s:18:"columns_wrap_class";s:0:"";s:24:"columns_wrap_class_fluid";s:0:"";s:12:"column_class";s:0:"";s:11:"demo_enable";i:0;s:12:"demo_referer";s:0:"";s:16:"demo_default_url";s:0:"";s:9:"demo_logo";s:0:"";s:14:"demo_post_type";s:0:"";s:13:"demo_taxonomy";s:0:"";}s:36:"trx_addons_theme_rosalinda_activated";s:1:"1";s:8:"blogname";s:9:"Rosalinda";s:15:"blogdescription";s:29:"Vegetarian &amp; Health Coach";s:9:"site_icon";s:3:"605";s:14:"posts_per_page";s:2:"10";s:13:"show_on_front";s:4:"page";s:13:"page_on_front";s:2:"88";s:14:"page_for_posts";s:1:"0";s:12:"sticky_posts";a:1:{i:0;i:1176;}s:38:"booked_admin_appointment_email_content";s:251:"You have a new appointment request! Here's the appointment information:
+
+Customer: %name%
+Date: %date%
+Time: %time%
+
+Log into your website here: https://rosalinda.axiomthemes.com/wp-admin/ to approve this appointment.
+
+(Sent via the Rosalinda website)";s:38:"booked_admin_appointment_email_subject";s:35:"You have a new appointment request!";s:39:"booked_admin_cancellation_email_content";s:168:"One of your customers has cancelled their appointment. Here's the appointment information:
+
+Customer: %name%
+Date: %date%
+Time: %time%
+
+(Sent via the Rosalinda website)";s:39:"booked_admin_cancellation_email_subject";s:34:"An appointment has been cancelled.";s:28:"booked_admin_reminder_buffer";s:2:"30";s:27:"booked_admin_reminder_email";s:204:"You have an appointment coming up soon! Here's the appointment information:
+
+<strong>Customer:</strong> %name%
+<strong>Date:</strong> %date%
+<strong>Time:</strong> %time%
+
+(Sent via the Rosalinda website)";s:35:"booked_admin_reminder_email_subject";s:33:"An appointment is coming up soon!";s:25:"booked_appointment_buffer";s:1:"0";s:24:"booked_appointment_limit";s:1:"0";s:32:"booked_appointment_redirect_type";s:0:"";s:40:"booked_appointment_success_redirect_page";s:0:"";s:29:"booked_approval_email_content";s:176:"Hey %name%!
+
+The appointment you requested at Rosalinda has been approved! Here's your appointment information:
+
+Date: %date%
+Time: %time%
+
+Sincerely,
+Your friends at Rosalinda";s:29:"booked_approval_email_subject";s:35:"Your appointment has been approved!";s:38:"booked_appt_confirmation_email_content";s:179:"Hey %name%!
+
+This is just an email to confirm your appointment. For reference, here's the appointment information:
+
+Date: %date%
+Time: %time%
+
+Sincerely,
+Your friends at Rosalinda";s:38:"booked_appt_confirmation_email_subject";s:45:"Your appointment confirmation from Rosalinda.";s:19:"booked_booking_type";s:10:"registered";s:19:"booked_button_color";s:7:"#e29979";s:26:"booked_cancellation_buffer";s:1:"0";s:33:"booked_cancellation_email_content";s:191:"Hey %name%!
+
+The appointment you requested at Rosalinda has been cancelled. For reference, here's the appointment information:
+
+Date: %date%
+Time: %time%
+
+Sincerely,
+Your friends at Rosalinda";s:33:"booked_cancellation_email_subject";s:36:"Your appointment has been cancelled.";s:27:"booked_custom_login_message";s:0:"";s:17:"booked_dark_color";s:7:"#a3b82e";s:25:"booked_default_email_user";s:0:"";s:18:"booked_defaults_44";a:6:{s:3:"Mon";a:4:{s:9:"0005-0105";i:1;s:9:"0105-0205";i:1;s:9:"0205-0305";i:1;s:9:"0305-0405";i:1;}s:11:"Mon-details";a:4:{s:9:"0005-0105";a:1:{s:5:"title";s:0:"";}s:9:"0105-0205";a:1:{s:5:"title";s:0:"";}s:9:"0205-0305";a:1:{s:5:"title";s:0:"";}s:9:"0305-0405";a:1:{s:5:"title";s:0:"";}}s:3:"Wed";a:8:{s:9:"0825-0925";i:1;s:9:"0925-1025";i:1;s:9:"1025-1125";i:1;s:9:"1125-1225";i:1;s:9:"1325-1425";i:1;s:9:"1525-1625";i:1;s:9:"1625-1725";i:1;s:9:"1825-1925";i:1;}s:11:"Wed-details";a:8:{s:9:"0825-0925";a:1:{s:5:"title";s:0:"";}s:9:"0925-1025";a:1:{s:5:"title";s:0:"";}s:9:"1025-1125";a:1:{s:5:"title";s:0:"";}s:9:"1125-1225";a:1:{s:5:"title";s:0:"";}s:9:"1325-1425";a:1:{s:5:"title";s:0:"";}s:9:"1525-1625";a:1:{s:5:"title";s:0:"";}s:9:"1625-1725";a:1:{s:5:"title";s:0:"";}s:9:"1825-1925";a:1:{s:5:"title";s:0:"";}}s:3:"Fri";a:6:{s:9:"1135-1235";i:1;s:9:"1235-1335";i:1;s:9:"1335-1435";i:1;s:9:"1435-1535";i:1;s:9:"1535-1635";i:1;s:9:"1635-1735";i:1;}s:11:"Fri-details";a:6:{s:9:"1135-1235";a:1:{s:5:"title";s:0:"";}s:9:"1235-1335";a:1:{s:5:"title";s:0:"";}s:9:"1335-1435";a:1:{s:5:"title";s:0:"";}s:9:"1435-1535";a:1:{s:5:"title";s:0:"";}s:9:"1535-1635";a:1:{s:5:"title";s:0:"";}s:9:"1635-1735";a:1:{s:5:"title";s:0:"";}}}s:36:"booked_dont_allow_user_cancellations";s:0:"";s:25:"booked_email_force_sender";s:0:"";s:30:"booked_email_force_sender_from";s:17:"info@themerex.net";s:17:"booked_email_logo";s:0:"";s:23:"booked_emailer_disabled";s:0:"";s:26:"booked_hide_admin_bar_menu";s:0:"";s:31:"booked_hide_available_timeslots";s:0:"";s:28:"booked_hide_default_calendar";s:0:"";s:21:"booked_hide_end_times";s:0:"";s:23:"booked_hide_google_link";s:0:"";s:33:"booked_hide_unavailable_timeslots";s:0:"";s:20:"booked_hide_weekends";s:0:"";s:18:"booked_light_color";s:7:"#f89a79";s:26:"booked_login_redirect_page";s:0:"";s:30:"booked_new_appointment_default";s:5:"draft";s:33:"booked_prevent_appointments_after";s:0:"";s:34:"booked_prevent_appointments_before";s:0:"";s:26:"booked_public_appointments";s:0:"";s:26:"booked_redirect_non_admins";s:0:"";s:33:"booked_registration_email_content";s:223:"Hey %name%!
+
+Thanks for registering at Rosalinda. You can now login to manage your account and appointments using the following credentials:
+
+Email Address: %email%
+Password: %password%
+
+Sincerely,
+Your friends at Rosalinda";s:33:"booked_registration_email_subject";s:26:"Thank you for registering!";s:37:"booked_registration_name_requirements";a:1:{i:0;s:12:"require_name";}s:22:"booked_reminder_buffer";s:2:"30";s:21:"booked_reminder_email";s:242:"Just a friendly reminder that you have an appointment coming up soon! Here's the appointment information:
+
+<strong>Calendar:</strong> %calendar%
+<strong>Date:</strong> %date%
+<strong>Time:</strong> %time%
+
+Sincerely,
+Your friends at Rosalinda";s:29:"booked_reminder_email_subject";s:49:"Reminder: You have an appointment coming up soon!";s:34:"booked_require_guest_email_address";s:0:"";s:23:"booked_show_only_titles";s:0:"";s:25:"booked_timeslot_intervals";s:1:"5";s:20:"booked_version_check";s:3:"2.4";s:5:"wpcf7";a:2:{s:7:"version";s:5:"5.6.3";s:13:"bulk_validate";a:4:{s:9:"timestamp";i:1516359913;s:7:"version";s:5:"4.9.2";s:11:"count_valid";i:1;s:13:"count_invalid";i:0;}}s:21:"sb_instagram_settings";a:44:{s:15:"sb_instagram_at";s:0:"";s:20:"sb_instagram_user_id";s:0:"";s:30:"sb_instagram_preserve_settings";s:0:"";s:23:"sb_instagram_ajax_theme";b:0;s:27:"sb_instagram_disable_resize";b:0;s:23:"sb_instagram_cache_time";i:1;s:28:"sb_instagram_cache_time_unit";s:5:"hours";s:16:"sbi_caching_type";s:10:"background";s:23:"sbi_cache_cron_interval";s:7:"12hours";s:19:"sbi_cache_cron_time";s:1:"1";s:20:"sbi_cache_cron_am_pm";s:2:"am";s:18:"sb_instagram_width";s:3:"100";s:23:"sb_instagram_width_unit";s:1:"%";s:28:"sb_instagram_feed_width_resp";b:0;s:19:"sb_instagram_height";s:0:"";s:16:"sb_instagram_num";s:2:"20";s:24:"sb_instagram_height_unit";s:0:"";s:17:"sb_instagram_cols";s:1:"4";s:27:"sb_instagram_disable_mobile";b:0;s:26:"sb_instagram_image_padding";s:1:"5";s:31:"sb_instagram_image_padding_unit";s:2:"px";s:17:"sb_instagram_sort";s:4:"none";s:23:"sb_instagram_background";s:0:"";s:21:"sb_instagram_show_btn";b:1;s:27:"sb_instagram_btn_background";s:0:"";s:27:"sb_instagram_btn_text_color";s:0:"";s:21:"sb_instagram_btn_text";s:12:"Load More...";s:22:"sb_instagram_image_res";s:4:"auto";s:24:"sb_instagram_show_header";b:1;s:24:"sb_instagram_header_size";s:5:"small";s:25:"sb_instagram_header_color";s:0:"";s:28:"sb_instagram_show_follow_btn";b:1;s:33:"sb_instagram_folow_btn_background";s:0:"";s:34:"sb_instagram_follow_btn_text_color";s:0:"";s:28:"sb_instagram_follow_btn_text";s:19:"Follow on Instagram";s:23:"sb_instagram_custom_css";s:0:"";s:22:"sb_instagram_custom_js";s:0:"";s:17:"sb_instagram_cron";s:2:"no";s:19:"sb_instagram_backup";b:1;s:15:"sb_ajax_initial";b:0;s:24:"enqueue_css_in_shortcode";b:0;s:30:"sb_instagram_disable_mob_swipe";b:0;s:28:"sb_instagram_disable_awesome";b:0;s:18:"connected_accounts";a:0:{}}s:21:"mc4wp_default_form_id";s:3:"442";s:22:"mc4wp_form_stylesheets";a:0:{}s:20:"mc4wp_flash_messages";a:0:{}}
