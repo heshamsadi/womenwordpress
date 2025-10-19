@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Enqueue child theme styles
+ * Enqueue child theme styles and scripts
  * Parent theme styles are loaded by parent theme
  * We add child theme customizations for dropdown menus
  */
@@ -27,6 +27,14 @@ function rosalinda_child_enqueue_styles() {
         get_stylesheet_directory_uri() . '/style.css',
         array('rosalinda-style'),
         $child_style_version
+    );
+    
+    // Enqueue menu hover JavaScript
+    wp_enqueue_script('rosalinda-child-menu-hover',
+        get_stylesheet_directory_uri() . '/assets/js/menu-hover.js',
+        array(),
+        $child_style_version,
+        true
     );
 }
 add_action('wp_enqueue_scripts', 'rosalinda_child_enqueue_styles', 15);
@@ -153,6 +161,517 @@ function rosalinda_child_remove_wp_version() {
 add_filter('the_generator', 'rosalinda_child_remove_wp_version');
 
 /* ==========================================================================
+   Category Structure (Hubs + Subhubs)
+   ========================================================================== */
+
+/**
+ * Category hierarchy map
+ * Each hub has name, slug, description intro, and children (subhubs)
+ * Each subhub can have its own children (sub-pages)
+ */
+function rosalinda_child_get_category_map() {
+    return array(
+        array(
+            'name' => 'Health',
+            'slug' => 'health',
+            'description' => 'Evidence-based guides, tools, and templates for nutrition, cycle care, sleep, and stress management.',
+            'children' => array(
+                array(
+                    'name' => 'Nutrition',
+                    'slug' => 'nutrition',
+                    'children' => array(
+                        array('name' => 'Meal Plans', 'slug' => 'meal-plans'),
+                        array('name' => 'Micronutrients 101', 'slug' => 'micronutrients'),
+                        array('name' => 'Hydration & Electrolytes', 'slug' => 'hydration'),
+                        array('name' => 'Food-First Guides', 'slug' => 'food-first'),
+                    ),
+                ),
+                array(
+                    'name' => 'Cycle Care',
+                    'slug' => 'cycle-care',
+                    'children' => array(
+                        array('name' => 'Phase Guides', 'slug' => 'phase-guides'),
+                        array('name' => 'Workout Syncing', 'slug' => 'workout-sync'),
+                        array('name' => 'Symptom Care', 'slug' => 'symptom-care'),
+                        array('name' => 'Calendar & Tracker', 'slug' => 'tracker'),
+                    ),
+                ),
+                array(
+                    'name' => 'Sleep & Stress',
+                    'slug' => 'sleep-stress',
+                    'children' => array(
+                        array('name' => 'Sleep Habits', 'slug' => 'sleep-habits'),
+                        array('name' => 'Evening Routines', 'slug' => 'evening-routines'),
+                        array('name' => 'Stress Scripts', 'slug' => 'stress-scripts'),
+                        array('name' => 'Breathing & Micro-breaks', 'slug' => 'breathing'),
+                    ),
+                ),
+            ),
+        ),
+        array(
+            'name' => 'Beauty',
+            'slug' => 'beauty',
+            'description' => 'Science-backed skincare, haircare, and makeup guides tailored to your needs.',
+            'children' => array(
+                array(
+                    'name' => 'Skincare',
+                    'slug' => 'skincare',
+                    'children' => array(
+                        array('name' => 'Routines (AM/PM)', 'slug' => 'routines'),
+                        array('name' => 'Ingredients 101', 'slug' => 'ingredients'),
+                        array('name' => 'Concern Guides', 'slug' => 'concerns'),
+                        array('name' => 'SPF & Sun Care', 'slug' => 'spf'),
+                    ),
+                ),
+                array(
+                    'name' => 'Haircare',
+                    'slug' => 'haircare',
+                    'children' => array(
+                        array('name' => 'Wash Day Maps', 'slug' => 'wash-day'),
+                        array('name' => 'Curl Types 2A–4C', 'slug' => 'curl-types'),
+                        array('name' => 'Protective Styling', 'slug' => 'protective-styles'),
+                        array('name' => 'Scalp Care', 'slug' => 'scalp'),
+                    ),
+                ),
+                array(
+                    'name' => 'Makeup',
+                    'slug' => 'makeup',
+                    'children' => array(
+                        array('name' => '5-Minute Looks', 'slug' => 'fast-looks'),
+                        array('name' => 'Base & Complexion', 'slug' => 'base'),
+                        array('name' => 'Eyes & Lips', 'slug' => 'eyes-lips'),
+                        array('name' => 'Tools & Hygiene', 'slug' => 'tools'),
+                    ),
+                ),
+            ),
+        ),
+        array(
+            'name' => 'Fitness',
+            'slug' => 'fitness',
+            'description' => 'Movement plans for every stage of life—beginner-friendly, postpartum-safe, and age-appropriate.',
+            'children' => array(
+                array(
+                    'name' => 'Beginner',
+                    'slug' => 'beginner',
+                    'children' => array(
+                        array('name' => 'Full-Body Basics', 'slug' => 'full-body'),
+                        array('name' => 'No-Equipment Plans', 'slug' => 'no-equipment'),
+                        array('name' => 'Form 101', 'slug' => 'form-101'),
+                        array('name' => 'Mobility Reset', 'slug' => 'mobility'),
+                    ),
+                ),
+                array(
+                    'name' => 'Postpartum',
+                    'slug' => 'postpartum',
+                    'children' => array(
+                        array('name' => 'Core Basics', 'slug' => 'core-basics'),
+                        array('name' => 'Gentle Progressions', 'slug' => 'progressions'),
+                        array('name' => 'Time-Saver Workouts', 'slug' => 'time-savers'),
+                        array('name' => 'Return-to-Movement Checklist', 'slug' => 'checklist'),
+                    ),
+                ),
+                array(
+                    'name' => '40-Plus',
+                    'slug' => '40-plus',
+                    'children' => array(
+                        array('name' => 'Strength Focus', 'slug' => 'strength'),
+                        array('name' => 'Mobility & Balance', 'slug' => 'mobility-balance'),
+                        array('name' => 'Joint-Friendly Sessions', 'slug' => 'joint-friendly'),
+                        array('name' => 'Recovery & Sleep', 'slug' => 'recovery'),
+                    ),
+                ),
+            ),
+        ),
+        array(
+            'name' => 'Money & Career',
+            'slug' => 'money-career',
+            'description' => 'Practical financial tools, budget templates, side hustle ideas, and salary negotiation scripts.',
+            'children' => array(
+                array(
+                    'name' => 'Budgeting',
+                    'slug' => 'budgeting',
+                    'children' => array(
+                        array('name' => 'Starter Budget', 'slug' => 'starter'),
+                        array('name' => 'Zero-Based System', 'slug' => 'zero-based'),
+                        array('name' => 'Templates & Sheets', 'slug' => 'templates'),
+                        array('name' => 'Automations', 'slug' => 'automation'),
+                    ),
+                ),
+                array(
+                    'name' => 'Side Hustles',
+                    'slug' => 'side-hustles',
+                    'children' => array(
+                        array('name' => 'Idea Matrix', 'slug' => 'ideas'),
+                        array('name' => 'Skill Matching', 'slug' => 'skill-match'),
+                        array('name' => 'Setup Guides', 'slug' => 'setup'),
+                        array('name' => 'Basics & Taxes', 'slug' => 'basics'),
+                    ),
+                ),
+                array(
+                    'name' => 'Salary Growth',
+                    'slug' => 'salary-growth',
+                    'children' => array(
+                        array('name' => 'Market Research', 'slug' => 'research'),
+                        array('name' => 'Raise Scripts', 'slug' => 'raise-scripts'),
+                        array('name' => 'Interview Prep', 'slug' => 'interview'),
+                        array('name' => 'Portfolio & LinkedIn', 'slug' => 'brand'),
+                    ),
+                ),
+            ),
+        ),
+        array(
+            'name' => 'Home & Parenting',
+            'slug' => 'home-parenting',
+            'description' => 'New mom essentials, meal prep systems, and family organization strategies that actually work.',
+            'children' => array(
+                array(
+                    'name' => 'New Mom',
+                    'slug' => 'new-mom',
+                    'children' => array(
+                        array('name' => 'First 12 Weeks', 'slug' => 'first-12-weeks'),
+                        array('name' => 'Logs & Routines', 'slug' => 'logs'),
+                        array('name' => 'Gear Checklists', 'slug' => 'checklists'),
+                        array('name' => 'Support Scripts', 'slug' => 'support-scripts'),
+                    ),
+                ),
+                array(
+                    'name' => 'Meal Prep',
+                    'slug' => 'meal-prep',
+                    'children' => array(
+                        array('name' => '30-Minute Meals', 'slug' => '30-minute'),
+                        array('name' => 'Weekly Plans', 'slug' => 'weekly-plans'),
+                        array('name' => 'Shopping Lists', 'slug' => 'shopping-lists'),
+                        array('name' => 'Storage & Reheat', 'slug' => 'storage'),
+                    ),
+                ),
+                array(
+                    'name' => 'Family Organization',
+                    'slug' => 'family-organization',
+                    'children' => array(
+                        array('name' => 'Command Center', 'slug' => 'command-center'),
+                        array('name' => 'Routines & Charts', 'slug' => 'routines'),
+                        array('name' => 'Cleaning Sprints', 'slug' => 'cleaning'),
+                        array('name' => 'Calendar Sync', 'slug' => 'calendar'),
+                    ),
+                ),
+            ),
+        ),
+        array(
+            'name' => 'Relationships',
+            'slug' => 'relationships',
+            'description' => 'Communication scripts, boundary-setting tools, and confidence-building exercises for healthier relationships.',
+            'children' => array(
+                array(
+                    'name' => 'Communication',
+                    'slug' => 'communication',
+                    'children' => array(
+                        array('name' => 'What to Say', 'slug' => 'what-to-say'),
+                        array('name' => 'De-escalation', 'slug' => 'deescalation'),
+                        array('name' => 'Workplace Boundaries', 'slug' => 'work-boundaries'),
+                        array('name' => 'Text Templates', 'slug' => 'text-templates'),
+                    ),
+                ),
+                array(
+                    'name' => 'Marriage',
+                    'slug' => 'marriage',
+                    'children' => array(
+                        array('name' => 'Connection Rituals', 'slug' => 'rituals'),
+                        array('name' => 'Budgeting Together', 'slug' => 'budgeting-together'),
+                        array('name' => 'Household Ops', 'slug' => 'household-ops'),
+                        array('name' => 'Date Ideas', 'slug' => 'date-ideas'),
+                    ),
+                ),
+                array(
+                    'name' => 'Self-Worth',
+                    'slug' => 'self-worth',
+                    'children' => array(
+                        array('name' => 'Boundaries 101', 'slug' => 'boundaries'),
+                        array('name' => 'Confidence Habits', 'slug' => 'confidence'),
+                        array('name' => 'Unlearning People-Pleasing', 'slug' => 'people-pleasing'),
+                        array('name' => 'Journaling Prompts', 'slug' => 'journaling'),
+                    ),
+                ),
+            ),
+        ),
+    );
+}
+
+/**
+ * Seed categories (hubs and subhubs) idempotently
+ * Now supports 3 levels: Hub → Subhub → Sub-pages
+ * 
+ * @param bool $refresh If true, update hub descriptions even if they exist
+ * @return array Result with counts and any errors
+ */
+function rosalinda_child_seed_categories($refresh = false) {
+    // Safety checks
+    if (!taxonomy_exists('category')) {
+        return array('error' => 'Category taxonomy does not exist');
+    }
+    
+    $result = array(
+        'hubs_created' => 0,
+        'hubs_updated' => 0,
+        'subhubs_created' => 0,
+        'subhubs_updated' => 0,
+        'subpages_created' => 0,
+        'subpages_updated' => 0,
+        'errors' => array(),
+    );
+    
+    $category_map = rosalinda_child_get_category_map();
+    
+    foreach ($category_map as $hub) {
+        try {
+            // Check if hub exists
+            $hub_term = term_exists($hub['slug'], 'category');
+            $hub_id = null;
+            
+            if (!$hub_term) {
+                // Create hub
+                $hub_term = wp_insert_term($hub['name'], 'category', array(
+                    'slug' => $hub['slug'],
+                    'description' => rosalinda_child_build_hub_description($hub['name'], $hub['description'], $hub['slug']),
+                ));
+                
+                if (is_wp_error($hub_term)) {
+                    $result['errors'][] = 'Hub ' . $hub['slug'] . ': ' . $hub_term->get_error_message();
+                    continue;
+                }
+                
+                $hub_id = $hub_term['term_id'];
+                $result['hubs_created']++;
+            } else {
+                // Hub exists
+                $hub_id = is_array($hub_term) ? $hub_term['term_id'] : $hub_term;
+                
+                // Update description if refresh requested or if empty
+                $existing_term = get_term($hub_id, 'category');
+                if ($refresh || empty($existing_term->description)) {
+                    wp_update_term($hub_id, 'category', array(
+                        'description' => rosalinda_child_build_hub_description($hub['name'], $hub['description'], $hub['slug']),
+                    ));
+                    $result['hubs_updated']++;
+                }
+            }
+            
+            // Create/update subhubs (level 2)
+            if (!empty($hub['children']) && $hub_id) {
+                foreach ($hub['children'] as $subhub) {
+                    $subhub_slug = $hub['slug'] . '-' . $subhub['slug'];
+                    $subhub_term = term_exists($subhub_slug, 'category');
+                    $subhub_id = null;
+                    
+                    if (!$subhub_term) {
+                        // Create subhub
+                        $subhub_term = wp_insert_term($subhub['name'], 'category', array(
+                            'slug' => $subhub_slug,
+                            'parent' => $hub_id,
+                            'description' => '', // Subhubs have no description
+                        ));
+                        
+                        if (is_wp_error($subhub_term)) {
+                            $result['errors'][] = 'Subhub ' . $subhub_slug . ': ' . $subhub_term->get_error_message();
+                            continue;
+                        } else {
+                            $subhub_id = $subhub_term['term_id'];
+                            $result['subhubs_created']++;
+                        }
+                    } else {
+                        // Ensure parent is correct
+                        $subhub_id = is_array($subhub_term) ? $subhub_term['term_id'] : $subhub_term;
+                        wp_update_term($subhub_id, 'category', array(
+                            'parent' => $hub_id,
+                        ));
+                        $result['subhubs_updated']++;
+                    }
+                    
+                    // Create/update sub-pages (level 3)
+                    if (!empty($subhub['children']) && $subhub_id) {
+                        foreach ($subhub['children'] as $subpage) {
+                            $subpage_slug = $subhub_slug . '-' . $subpage['slug'];
+                            $subpage_term = term_exists($subpage_slug, 'category');
+                            
+                            if (!$subpage_term) {
+                                // Create sub-page
+                                $subpage_term = wp_insert_term($subpage['name'], 'category', array(
+                                    'slug' => $subpage_slug,
+                                    'parent' => $subhub_id,
+                                    'description' => '',
+                                ));
+                                
+                                if (is_wp_error($subpage_term)) {
+                                    $result['errors'][] = 'Sub-page ' . $subpage_slug . ': ' . $subpage_term->get_error_message();
+                                } else {
+                                    $result['subpages_created']++;
+                                }
+                            } else {
+                                // Ensure parent is correct
+                                $subpage_id = is_array($subpage_term) ? $subpage_term['term_id'] : $subpage_term;
+                                wp_update_term($subpage_id, 'category', array(
+                                    'parent' => $subhub_id,
+                                ));
+                                $result['subpages_updated']++;
+                            }
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception $e) {
+            $result['errors'][] = 'Exception for hub ' . $hub['slug'] . ': ' . $e->getMessage();
+            error_log('Rosalinda Child - Category seeding error: ' . $e->getMessage());
+        }
+    }
+    
+    // CRITICAL: Flush rewrite rules so WordPress recognizes the new category URLs
+    flush_rewrite_rules();
+    
+    return $result;
+}
+
+/**
+ * Build hub description using core Gutenberg blocks
+ * Returns block HTML that will be styled by parent theme
+ * 
+ * @param string $hub_name Hub display name
+ * @param string $intro_text Short description text
+ * @param string $hub_slug Hub slug for shortcode
+ * @return string Block HTML
+ */
+function rosalinda_child_build_hub_description($hub_name, $intro_text, $hub_slug) {
+    $description = <<<HTML
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">{$hub_name}</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{$intro_text}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>[subhub_buttons term_slug="{$hub_slug}"]</p>
+<!-- /wp:paragraph -->
+HTML;
+    
+    return $description;
+}
+
+/**
+ * Shortcode: [subhub_buttons]
+ * Renders core Buttons block with outline style for child categories
+ * Inherits all styling from parent theme
+ * 
+ * @param array $atts Shortcode attributes (term_id or term_slug)
+ * @return string Buttons block HTML
+ */
+function rosalinda_child_subhub_buttons_shortcode($atts) {
+    $atts = shortcode_atts(array(
+        'term_id' => 0,
+        'term_slug' => '',
+    ), $atts);
+    
+    // Determine term ID
+    $term_id = (int) $atts['term_id'];
+    
+    if (!$term_id && !empty($atts['term_slug'])) {
+        $term = get_term_by('slug', $atts['term_slug'], 'category');
+        if ($term && !is_wp_error($term)) {
+            $term_id = $term->term_id;
+        }
+    }
+    
+    // If still no term_id, try to get from current query
+    if (!$term_id && is_category()) {
+        $term_id = get_queried_object_id();
+    }
+    
+    if (!$term_id) {
+        return '';
+    }
+    
+    // Get child terms
+    $child_terms = get_terms(array(
+        'taxonomy' => 'category',
+        'parent' => $term_id,
+        'hide_empty' => false,
+        'orderby' => 'name',
+        'order' => 'ASC',
+    ));
+    
+    if (empty($child_terms) || is_wp_error($child_terms)) {
+        return '';
+    }
+    
+    // Build buttons block HTML
+    $buttons_html = '<!-- wp:buttons -->' . "\n";
+    $buttons_html .= '<div class="wp-block-buttons">' . "\n";
+    
+    foreach ($child_terms as $term) {
+        $term_link = esc_url(get_term_link($term));
+        $term_name = esc_html($term->name);
+        
+        $buttons_html .= '<!-- wp:button {"className":"is-style-outline"} -->' . "\n";
+        $buttons_html .= '<div class="wp-block-button is-style-outline">';
+        $buttons_html .= '<a class="wp-block-button__link wp-element-button" href="' . $term_link . '">';
+        $buttons_html .= $term_name;
+        $buttons_html .= '</a>';
+        $buttons_html .= '</div>' . "\n";
+        $buttons_html .= '<!-- /wp:button -->' . "\n\n";
+    }
+    
+    $buttons_html .= '</div>' . "\n";
+    $buttons_html .= '<!-- /wp:buttons -->';
+    
+    return $buttons_html;
+}
+add_shortcode('subhub_buttons', 'rosalinda_child_subhub_buttons_shortcode');
+
+/**
+ * Enable shortcodes in category descriptions
+ */
+add_filter('term_description', 'do_shortcode');
+
+/**
+ * Run seeder on theme activation
+ */
+function rosalinda_child_seed_on_activation() {
+    rosalinda_child_seed_categories(false);
+}
+add_action('after_switch_theme', 'rosalinda_child_seed_on_activation');
+
+/**
+ * WP-CLI command: wp smartlife seed-categories [--refresh]
+ */
+if (defined('WP_CLI') && WP_CLI) {
+    WP_CLI::add_command('smartlife seed-categories', function($args, $assoc_args) {
+        $refresh = isset($assoc_args['refresh']);
+        
+        WP_CLI::log('Starting category seeding...');
+        if ($refresh) {
+            WP_CLI::log('Refresh mode: will update existing hub descriptions');
+        }
+        
+        $result = rosalinda_child_seed_categories($refresh);
+        
+        WP_CLI::success(sprintf(
+            'Hubs: %d created, %d updated | Subhubs: %d created, %d updated',
+            $result['hubs_created'],
+            $result['hubs_updated'],
+            $result['subhubs_created'],
+            $result['subhubs_updated']
+        ));
+        
+        if (!empty($result['errors'])) {
+            WP_CLI::warning('Errors encountered:');
+            foreach ($result['errors'] as $error) {
+                WP_CLI::log('  - ' . $error);
+            }
+        }
+    });
+}
+
+/* ==========================================================================
    Navigation Menu Auto-Creation
    Works with parent theme's existing menu system
    ========================================================================== */
@@ -188,23 +707,95 @@ function rosalinda_child_manual_menu_recreate() {
         
         // Show debug info
         $new_menu = wp_get_nav_menu_object('Primary Menu');
+        if (!$new_menu) {
+            wp_die('Error: Primary Menu was not created!');
+        }
+        
         $items = wp_get_nav_menu_items($new_menu->term_id);
         
         echo '<h2>Menu Created Successfully!</h2>';
         echo '<p>Menu ID: ' . $new_menu->term_id . '</p>';
         echo '<p>Total Items: ' . count($items) . '</p>';
-        echo '<h3>Menu Structure (first 20 items):</h3><pre>';
-        foreach (array_slice($items, 0, 20) as $item) {
+        echo '<h3>Full Menu Structure:</h3><pre>';
+        foreach ($items as $item) {
             $indent = $item->menu_item_parent ? '  ' : '';
-            echo $indent . '- ' . $item->title . " (ID: {$item->ID}, Parent: {$item->menu_item_parent})\n";
+            echo $indent . '- ' . $item->title . " (ID: {$item->ID}, Parent: {$item->menu_item_parent}, Type: {$item->type})\n";
+            echo $indent . '  URL: ' . $item->url . "\n";
         }
         echo '</pre>';
+        
+        echo '<h3>Menu Assignments:</h3>';
+        $locations = get_nav_menu_locations();
+        echo '<pre>';
+        print_r($locations);
+        echo '</pre>';
+        
         echo '<p><a href="' . admin_url('nav-menus.php') . '">View Menus in Admin</a> | <a href="' . home_url() . '">View Site</a></p>';
         
         wp_die();
     }
 }
 add_action('init', 'rosalinda_child_manual_menu_recreate');
+
+/**
+ * MANUAL TRIGGER: Seed categories (delete this after use)
+ * Visit: yoursite.com/?seed_categories=1 (while logged in as admin)
+ */
+function rosalinda_child_manual_category_seed() {
+    if (isset($_GET['seed_categories']) && current_user_can('manage_options')) {
+        $refresh = isset($_GET['refresh']);
+        
+        echo '<h2>Seeding Categories...</h2>';
+        if ($refresh) {
+            echo '<p>Refresh mode: updating existing hub descriptions</p>';
+        }
+        
+        $result = rosalinda_child_seed_categories($refresh);
+        
+        echo '<h3>Results:</h3>';
+        echo '<ul>';
+        echo '<li>Hubs created: ' . $result['hubs_created'] . '</li>';
+        echo '<li>Hubs updated: ' . $result['hubs_updated'] . '</li>';
+        echo '<li>Subhubs created: ' . $result['subhubs_created'] . '</li>';
+        echo '<li>Subhubs updated: ' . $result['subhubs_updated'] . '</li>';
+        echo '</ul>';
+        
+        if (!empty($result['errors'])) {
+            echo '<h3>Errors:</h3><ul>';
+            foreach ($result['errors'] as $error) {
+                echo '<li>' . esc_html($error) . '</li>';
+            }
+            echo '</ul>';
+        }
+        
+        // Show created categories
+        echo '<h3>Hub Categories:</h3><ul>';
+        foreach (rosalinda_child_get_category_map() as $hub) {
+            $term = get_term_by('slug', $hub['slug'], 'category');
+            if ($term) {
+                echo '<li><strong>' . $term->name . '</strong> - <a href="' . get_term_link($term) . '">' . get_term_link($term) . '</a>';
+                if (!empty($hub['children'])) {
+                    echo '<ul>';
+                    foreach ($hub['children'] as $subhub) {
+                        $subhub_slug = $hub['slug'] . '-' . $subhub['slug'];
+                        $subterm = get_term_by('slug', $subhub_slug, 'category');
+                        if ($subterm) {
+                            echo '<li>' . $subterm->name . ' - <a href="' . get_term_link($subterm) . '">' . get_term_link($subterm) . '</a></li>';
+                        }
+                    }
+                    echo '</ul>';
+                }
+                echo '</li>';
+            }
+        }
+        echo '</ul>';
+        
+        echo '<p><a href="' . admin_url('edit-tags.php?taxonomy=category') . '">View Categories in Admin</a> | <a href="' . home_url() . '">View Site</a></p>';
+        
+        wp_die();
+    }
+}
+add_action('init', 'rosalinda_child_manual_category_seed');
 
 /**
  * DEBUG: Check menu items (delete this after use)
@@ -239,7 +830,8 @@ function rosalinda_child_debug_menu() {
 add_action('init', 'rosalinda_child_debug_menu');
 
 /**
- * Create Primary Menu with full hierarchy
+ * Create Primary Menu with full 3-level hierarchy
+ * Links to actual category pages created by the seeder
  * Assigns to parent theme's menu location
  */
 function rosalinda_child_create_primary_menu() {
@@ -250,262 +842,74 @@ function rosalinda_child_create_primary_menu() {
         return;
     }
     
-    // Menu structure
-    $menu_structure = array(
-        // Health Hub
-        array(
-            'title' => 'Health',
-            'url' => '/health/',
-            'children' => array(
-                array(
-                    'title' => 'Nutrition',
-                    'url' => '/health/nutrition/',
-                    'children' => array(
-                        array('title' => 'Meal Plans', 'url' => '/health/nutrition/meal-plans/'),
-                        array('title' => 'Micronutrients 101', 'url' => '/health/nutrition/micronutrients/'),
-                        array('title' => 'Hydration & Electrolytes', 'url' => '/health/nutrition/hydration/'),
-                        array('title' => 'Food-First Guides', 'url' => '/health/nutrition/food-first/'),
-                    )
-                ),
-                array(
-                    'title' => 'Cycle Care',
-                    'url' => '/health/cycle-care/',
-                    'children' => array(
-                        array('title' => 'Phase Guides', 'url' => '/health/cycle-care/phase-guides/'),
-                        array('title' => 'Workout Syncing', 'url' => '/health/cycle-care/workout-sync/'),
-                        array('title' => 'Symptom Care (education)', 'url' => '/health/cycle-care/symptom-care/'),
-                        array('title' => 'Calendar & Tracker', 'url' => '/health/cycle-care/tracker/'),
-                    )
-                ),
-                array(
-                    'title' => 'Sleep & Stress',
-                    'url' => '/health/sleep-stress/',
-                    'children' => array(
-                        array('title' => 'Sleep Habits', 'url' => '/health/sleep-stress/sleep-habits/'),
-                        array('title' => 'Evening Routines', 'url' => '/health/sleep-stress/evening-routines/'),
-                        array('title' => 'Stress Scripts', 'url' => '/health/sleep-stress/stress-scripts/'),
-                        array('title' => 'Breathing & Micro-breaks', 'url' => '/health/sleep-stress/breathing/'),
-                    )
-                ),
-            )
-        ),
-        // Beauty Hub
-        array(
-            'title' => 'Beauty',
-            'url' => '/beauty/',
-            'children' => array(
-                array(
-                    'title' => 'Skincare',
-                    'url' => '/beauty/skincare/',
-                    'children' => array(
-                        array('title' => 'Routines (AM/PM)', 'url' => '/beauty/skincare/routines/'),
-                        array('title' => 'Ingredients 101', 'url' => '/beauty/skincare/ingredients/'),
-                        array('title' => 'Concern Guides', 'url' => '/beauty/skincare/concerns/'),
-                        array('title' => 'SPF & Sun Care', 'url' => '/beauty/skincare/spf/'),
-                    )
-                ),
-                array(
-                    'title' => 'Haircare',
-                    'url' => '/beauty/haircare/',
-                    'children' => array(
-                        array('title' => 'Wash Day Maps', 'url' => '/beauty/haircare/wash-day/'),
-                        array('title' => 'Curl Types 2A–4C', 'url' => '/beauty/haircare/curl-types/'),
-                        array('title' => 'Protective Styling', 'url' => '/beauty/haircare/protective-styles/'),
-                        array('title' => 'Scalp Care', 'url' => '/beauty/haircare/scalp/'),
-                    )
-                ),
-                array(
-                    'title' => 'Makeup',
-                    'url' => '/beauty/makeup/',
-                    'children' => array(
-                        array('title' => '5-Minute Looks', 'url' => '/beauty/makeup/fast-looks/'),
-                        array('title' => 'Base & Complexion', 'url' => '/beauty/makeup/base/'),
-                        array('title' => 'Eyes & Lips', 'url' => '/beauty/makeup/eyes-lips/'),
-                        array('title' => 'Tools & Hygiene', 'url' => '/beauty/makeup/tools/'),
-                    )
-                ),
-            )
-        ),
-        // Fitness Hub
-        array(
-            'title' => 'Fitness',
-            'url' => '/fitness/',
-            'children' => array(
-                array(
-                    'title' => 'Beginner',
-                    'url' => '/fitness/beginner/',
-                    'children' => array(
-                        array('title' => 'Full-Body Basics', 'url' => '/fitness/beginner/full-body/'),
-                        array('title' => 'No-Equipment Plans', 'url' => '/fitness/beginner/no-equipment/'),
-                        array('title' => 'Form 101', 'url' => '/fitness/beginner/form-101/'),
-                        array('title' => 'Mobility Reset', 'url' => '/fitness/beginner/mobility/'),
-                    )
-                ),
-                array(
-                    'title' => 'Postpartum',
-                    'url' => '/fitness/postpartum/',
-                    'children' => array(
-                        array('title' => 'Core Basics', 'url' => '/fitness/postpartum/core-basics/'),
-                        array('title' => 'Gentle Progressions', 'url' => '/fitness/postpartum/progressions/'),
-                        array('title' => 'Time-Saver Workouts', 'url' => '/fitness/postpartum/time-savers/'),
-                        array('title' => 'Return-to-Movement Checklist', 'url' => '/fitness/postpartum/checklist/'),
-                    )
-                ),
-                array(
-                    'title' => '40-Plus',
-                    'url' => '/fitness/40-plus/',
-                    'children' => array(
-                        array('title' => 'Strength Focus', 'url' => '/fitness/40-plus/strength/'),
-                        array('title' => 'Mobility & Balance', 'url' => '/fitness/40-plus/mobility/'),
-                        array('title' => 'Joint-Friendly Sessions', 'url' => '/fitness/40-plus/joint-friendly/'),
-                        array('title' => 'Recovery & Sleep', 'url' => '/fitness/40-plus/recovery/'),
-                    )
-                ),
-            )
-        ),
-        // Money & Career Hub
-        array(
-            'title' => 'Money & Career',
-            'url' => '/money-career/',
-            'children' => array(
-                array(
-                    'title' => 'Budgeting',
-                    'url' => '/money-career/budgeting/',
-                    'children' => array(
-                        array('title' => 'Starter Budget', 'url' => '/money-career/budgeting/starter/'),
-                        array('title' => 'Zero-Based System', 'url' => '/money-career/budgeting/zero-based/'),
-                        array('title' => 'Templates & Sheets', 'url' => '/money-career/budgeting/templates/'),
-                        array('title' => 'Automations', 'url' => '/money-career/budgeting/automation/'),
-                    )
-                ),
-                array(
-                    'title' => 'Side Hustles',
-                    'url' => '/money-career/side-hustles/',
-                    'children' => array(
-                        array('title' => 'Idea Matrix', 'url' => '/money-career/side-hustles/ideas/'),
-                        array('title' => 'Skill Matching', 'url' => '/money-career/side-hustles/skill-match/'),
-                        array('title' => 'Setup Guides', 'url' => '/money-career/side-hustles/setup/'),
-                        array('title' => 'Basics & Taxes (info)', 'url' => '/money-career/side-hustles/basics/'),
-                    )
-                ),
-                array(
-                    'title' => 'Salary Growth',
-                    'url' => '/money-career/salary-growth/',
-                    'children' => array(
-                        array('title' => 'Market Research', 'url' => '/money-career/salary-growth/research/'),
-                        array('title' => 'Raise Scripts', 'url' => '/money-career/salary-growth/raise-scripts/'),
-                        array('title' => 'Interview Prep', 'url' => '/money-career/salary-growth/interview/'),
-                        array('title' => 'Portfolio & LinkedIn', 'url' => '/money-career/salary-growth/brand/'),
-                    )
-                ),
-            )
-        ),
-        // Home & Parenting Hub
-        array(
-            'title' => 'Home & Parenting',
-            'url' => '/home-parenting/',
-            'children' => array(
-                array(
-                    'title' => 'New Mom',
-                    'url' => '/home-parenting/new-mom/',
-                    'children' => array(
-                        array('title' => 'First 12 Weeks', 'url' => '/home-parenting/new-mom/first-12-weeks/'),
-                        array('title' => 'Logs & Routines', 'url' => '/home-parenting/new-mom/logs/'),
-                        array('title' => 'Gear Checklists', 'url' => '/home-parenting/new-mom/checklists/'),
-                        array('title' => 'Support Scripts', 'url' => '/home-parenting/new-mom/support-scripts/'),
-                    )
-                ),
-                array(
-                    'title' => 'Meal Prep',
-                    'url' => '/home-parenting/meal-prep/',
-                    'children' => array(
-                        array('title' => '30-Minute Meals', 'url' => '/home-parenting/meal-prep/30-minute/'),
-                        array('title' => 'Weekly Plans', 'url' => '/home-parenting/meal-prep/weekly-plans/'),
-                        array('title' => 'Shopping Lists', 'url' => '/home-parenting/meal-prep/shopping-lists/'),
-                        array('title' => 'Storage & Reheat', 'url' => '/home-parenting/meal-prep/storage/'),
-                    )
-                ),
-                array(
-                    'title' => 'Family Organization',
-                    'url' => '/home-parenting/family-organization/',
-                    'children' => array(
-                        array('title' => 'Command Center', 'url' => '/home-parenting/family-organization/command-center/'),
-                        array('title' => 'Routines & Charts', 'url' => '/home-parenting/family-organization/routines/'),
-                        array('title' => 'Cleaning Sprints', 'url' => '/home-parenting/family-organization/cleaning/'),
-                        array('title' => 'Calendar Sync', 'url' => '/home-parenting/family-organization/calendar/'),
-                    )
-                ),
-            )
-        ),
-        // Relationships Hub
-        array(
-            'title' => 'Relationships',
-            'url' => '/relationships/',
-            'children' => array(
-                array(
-                    'title' => 'Communication',
-                    'url' => '/relationships/communication/',
-                    'children' => array(
-                        array('title' => 'What to Say…', 'url' => '/relationships/communication/what-to-say/'),
-                        array('title' => 'De-escalation', 'url' => '/relationships/communication/deescalation/'),
-                        array('title' => 'Workplace Boundaries', 'url' => '/relationships/communication/work-boundaries/'),
-                        array('title' => 'Text Templates', 'url' => '/relationships/communication/text-templates/'),
-                    )
-                ),
-                array(
-                    'title' => 'Marriage',
-                    'url' => '/relationships/marriage/',
-                    'children' => array(
-                        array('title' => 'Connection Rituals', 'url' => '/relationships/marriage/rituals/'),
-                        array('title' => 'Budgeting Together', 'url' => '/relationships/marriage/budgeting/'),
-                        array('title' => 'Household Ops', 'url' => '/relationships/marriage/household-ops/'),
-                        array('title' => 'Date Ideas', 'url' => '/relationships/marriage/date-ideas/'),
-                    )
-                ),
-                array(
-                    'title' => 'Self-Worth',
-                    'url' => '/relationships/self-worth/',
-                    'children' => array(
-                        array('title' => 'Boundaries 101', 'url' => '/relationships/self-worth/boundaries/'),
-                        array('title' => 'Confidence Habits', 'url' => '/relationships/self-worth/confidence/'),
-                        array('title' => 'Unlearning People-Pleasing', 'url' => '/relationships/self-worth/people-pleasing/'),
-                        array('title' => 'Journaling Prompts', 'url' => '/relationships/self-worth/journaling/'),
-                    )
-                ),
-            )
-        ),
-    );
+    // Build menu from category map
+    $category_map = rosalinda_child_get_category_map();
     
-    // Create menu items recursively
-    rosalinda_child_add_menu_items($menu_id, $menu_structure);
+    foreach ($category_map as $hub) {
+        // Get hub category
+        $hub_term = get_term_by('slug', $hub['slug'], 'category');
+        if (!$hub_term || is_wp_error($hub_term)) {
+            continue;
+        }
+        
+        // Add hub to menu
+        $hub_menu_item_id = wp_update_nav_menu_item($menu_id, 0, array(
+            'menu-item-title' => $hub_term->name,
+            'menu-item-url' => get_term_link($hub_term),
+            'menu-item-object-id' => $hub_term->term_id,
+            'menu-item-object' => 'category',
+            'menu-item-type' => 'taxonomy',
+            'menu-item-status' => 'publish',
+        ));
+        
+        // Add subhubs under this hub (level 2)
+        if (!empty($hub['children']) && !is_wp_error($hub_menu_item_id)) {
+            foreach ($hub['children'] as $subhub) {
+                $subhub_slug = $hub['slug'] . '-' . $subhub['slug'];
+                $subhub_term = get_term_by('slug', $subhub_slug, 'category');
+                
+                if ($subhub_term && !is_wp_error($subhub_term)) {
+                    $subhub_menu_item_id = wp_update_nav_menu_item($menu_id, 0, array(
+                        'menu-item-title' => $subhub_term->name,
+                        'menu-item-url' => get_term_link($subhub_term),
+                        'menu-item-object-id' => $subhub_term->term_id,
+                        'menu-item-object' => 'category',
+                        'menu-item-type' => 'taxonomy',
+                        'menu-item-status' => 'publish',
+                        'menu-item-parent-id' => $hub_menu_item_id,
+                    ));
+                    
+                    // Add sub-pages under this subhub (level 3)
+                    if (!empty($subhub['children']) && !is_wp_error($subhub_menu_item_id)) {
+                        foreach ($subhub['children'] as $subpage) {
+                            $subpage_slug = $subhub_slug . '-' . $subpage['slug'];
+                            $subpage_term = get_term_by('slug', $subpage_slug, 'category');
+                            
+                            if ($subpage_term && !is_wp_error($subpage_term)) {
+                                wp_update_nav_menu_item($menu_id, 0, array(
+                                    'menu-item-title' => $subpage_term->name,
+                                    'menu-item-url' => get_term_link($subpage_term),
+                                    'menu-item-object-id' => $subpage_term->term_id,
+                                    'menu-item-object' => 'category',
+                                    'menu-item-type' => 'taxonomy',
+                                    'menu-item-status' => 'publish',
+                                    'menu-item-parent-id' => $subhub_menu_item_id,
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     // Assign to parent theme's primary menu location
     $locations = get_theme_mod('nav_menu_locations');
     if (!is_array($locations)) {
         $locations = array();
     }
-    $locations['menu_main'] = $menu_id; // Parent theme's main menu location
+    $locations['menu_main'] = $menu_id;
     set_theme_mod('nav_menu_locations', $locations);
-}
-
-/**
- * Recursively add menu items
- */
-function rosalinda_child_add_menu_items($menu_id, $items, $parent_id = 0) {
-    foreach ($items as $item) {
-        $item_id = wp_update_nav_menu_item($menu_id, 0, array(
-            'menu-item-title'       => $item['title'],
-            'menu-item-url'         => home_url($item['url']),
-            'menu-item-status'      => 'publish',
-            'menu-item-type'        => 'custom',
-            'menu-item-parent-id'   => $parent_id
-        ));
-        
-        // Add children if they exist
-        if (!empty($item['children']) && !is_wp_error($item_id)) {
-            rosalinda_child_add_menu_items($menu_id, $item['children'], $item_id);
-        }
-    }
 }
 
 /* ==========================================================================

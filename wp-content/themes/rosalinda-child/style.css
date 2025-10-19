@@ -32,6 +32,14 @@ Text Domain: rosalinda-child
     opacity: 1 !important;
 }
 
+/* Force display of submenus on parent hover */
+.menu_main_nav > li:hover > ul.sub-menu,
+.sc_layouts_menu_nav > li:hover > ul.sub-menu {
+    display: block !important;
+    left: 0 !important;
+    top: 100% !important;
+}
+
 /* Ensure menu has proper z-index */
 .sc_layouts_menu_nav ul {
     z-index: 9999;
