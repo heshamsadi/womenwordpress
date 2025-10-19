@@ -458,8 +458,9 @@ function rosalinda_child_seed_categories($refresh = false) {
             // Create/update subhubs (level 2)
             if (!empty($hub['children']) && $hub_id) {
                 foreach ($hub['children'] as $subhub) {
-                    $subhub_slug = $hub['slug'] . '-' . $subhub['slug'];
-                    $subhub_term = term_exists($subhub_slug, 'category');
+                    // Use clean slug without parent prefix for better SEO URLs
+                    $subhub_slug = $subhub['slug'];
+                    $subhub_term = term_exists($subhub_slug, 'category', $hub_id);
                     $subhub_id = null;
                     
                     if (!$subhub_term) {
@@ -489,8 +490,9 @@ function rosalinda_child_seed_categories($refresh = false) {
                     // Create/update sub-pages (level 3)
                     if (!empty($subhub['children']) && $subhub_id) {
                         foreach ($subhub['children'] as $subpage) {
-                            $subpage_slug = $subhub_slug . '-' . $subpage['slug'];
-                            $subpage_term = term_exists($subpage_slug, 'category');
+                            // Use clean slug without parent prefix for better SEO URLs
+                            $subpage_slug = $subpage['slug'];
+                            $subpage_term = term_exists($subpage_slug, 'category', $subhub_id);
                             
                             if (!$subpage_term) {
                                 // Create sub-page
@@ -865,7 +867,8 @@ function rosalinda_child_create_primary_menu() {
         // Add subhubs under this hub (level 2)
         if (!empty($hub['children']) && !is_wp_error($hub_menu_item_id)) {
             foreach ($hub['children'] as $subhub) {
-                $subhub_slug = $hub['slug'] . '-' . $subhub['slug'];
+                // Use clean slug - WordPress handles hierarchy automatically
+                $subhub_slug = $subhub['slug'];
                 $subhub_term = get_term_by('slug', $subhub_slug, 'category');
                 
                 if ($subhub_term && !is_wp_error($subhub_term)) {
@@ -882,7 +885,8 @@ function rosalinda_child_create_primary_menu() {
                     // Add sub-pages under this subhub (level 3)
                     if (!empty($subhub['children']) && !is_wp_error($subhub_menu_item_id)) {
                         foreach ($subhub['children'] as $subpage) {
-                            $subpage_slug = $subhub_slug . '-' . $subpage['slug'];
+                            // Use clean slug
+                            $subpage_slug = $subpage['slug'];
                             $subpage_term = get_term_by('slug', $subpage_slug, 'category');
                             
                             if ($subpage_term && !is_wp_error($subpage_term)) {
