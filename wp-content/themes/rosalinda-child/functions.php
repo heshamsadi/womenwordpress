@@ -439,3 +439,104 @@ add_action('init', __NAMESPACE__ . '\\enable_shortcodes_in_content');
 
 // Schema
 add_action('wp_head', __NAMESPACE__ . '\\print_schema_jsonld', 99);
+
+/* ==========================================================================
+   INCLUDES
+   ========================================================================== */
+
+/**
+ * Include legacy functions for category/menu system
+ */
+if (file_exists(get_stylesheet_directory() . '/functions-legacy.php')) {
+    require_once get_stylesheet_directory() . '/functions-legacy.php';
+}
+
+/**
+ * Include recipe helper functions
+ */
+if (file_exists(get_stylesheet_directory() . '/inc/recipe-min.php')) {
+    require_once get_stylesheet_directory() . '/inc/recipe-min.php';
+}
+
+/**
+ * Include recipe meta box
+ */
+if (file_exists(get_stylesheet_directory() . '/inc/recipe-metabox.php')) {
+    require_once get_stylesheet_directory() . '/inc/recipe-metabox.php';
+}
+
+/**
+ * Enable custom fields in block editor
+ */
+add_action('init', function() {
+    add_post_type_support('post', 'custom-fields');
+});
+
+/**
+ * Force custom fields to show in block editor
+ */
+add_action('use_block_editor_for_post', function($use_block_editor, $post) {
+    if ($post->post_type === 'post') {
+        add_post_type_support('post', 'custom-fields');
+    }
+    return $use_block_editor;
+}, 10, 2);
+
+/**
+ * Ensure custom fields meta box is enabled
+ */
+add_action('add_meta_boxes', function() {
+    add_meta_box(
+        'postcustom',
+        'Custom Fields',
+        'post_custom_meta_box',
+        'post',
+        'normal',
+        'core'
+    );
+});
+
+/**
+ * Register custom fields for REST API (block editor)
+ */
+add_action('rest_api_init', function() {
+    $recipe_fields = [
+        'recipe_intro_short',
+        'recipe_prep',
+        'recipe_cook',
+        'recipe_total',
+        'recipe_yield',
+        'recipe_method',
+        'recipe_ingredients',
+        'recipe_steps',
+        'recipe_time_temp',
+        'recipe_diet',
+        'recipe_nutrition',
+        'recipe_faq_q1',
+        'recipe_faq_a1',
+        'recipe_faq_q2',
+        'recipe_faq_a2',
+        'recipe_faq_q3',
+        'recipe_faq_a3',
+        'recipe_tools',
+        'recipe_substitutions',
+        'recipe_storage',
+        'recipe_variations'
+    ];
+    
+    foreach ($recipe_fields as $field) {
+        register_rest_field('post', $field, [
+            'get_callback' => function($post) use ($field) {
+                return get_post_meta($post['id'], $field, true);
+            },
+            'update_callback' => function($value, $post) use ($field) {
+                return update_post_meta($post->ID, $field, $value);
+            },
+            'schema' => [
+                'description' => 'Recipe field: ' . $field,
+                'type' => 'string',
+                'context' => ['edit'],
+            ],
+        ]);
+    }
+});
