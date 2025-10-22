@@ -440,6 +440,33 @@ add_action('init', __NAMESPACE__ . '\\enable_shortcodes_in_content');
 // Schema
 add_action('wp_head', __NAMESPACE__ . '\\print_schema_jsonld', 99);
 
+/**
+ * Enqueue minimal fallback CSS for recipe pages only (no global changes).
+ */
+function enqueue_recipe_fallback() {
+    if (!is_singular('post')) {
+        return;
+    }
+
+    $post_id = get_queried_object_id();
+    $cats = get_the_category($post_id);
+    $is_cooking = false;
+    if (!empty($cats)) {
+        foreach ($cats as $c) {
+            $parent = $c;
+            while ($parent) {
+                if ($parent->slug === 'cooking') { $is_cooking = true; break 2; }
+                $parent = $parent->parent ? get_category($parent->parent) : null;
+            }
+        }
+    }
+
+    if ($is_cooking) {
+        wp_enqueue_style('rosalinda-child-recipe-fallback', get_stylesheet_directory_uri() . '/assets/css/recipe-fallback.css', array(), '1.0.0');
+    }
+}
+add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_recipe_fallback', 20);
+
 /* ==========================================================================
    INCLUDES
    ========================================================================== */

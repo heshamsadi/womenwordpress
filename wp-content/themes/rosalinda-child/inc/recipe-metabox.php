@@ -42,6 +42,8 @@ function child_recipe_meta_box_callback($post) {
     $steps = get_post_meta($post->ID, 'recipe_steps', true);
     $nutrition = get_post_meta($post->ID, 'recipe_nutrition', true);
     $diet = get_post_meta($post->ID, 'recipe_diet', true);
+    // Current template variant (hidden meta). Defaults to u1 if unset.
+    $template_variant = get_post_meta($post->ID, '_template_variant', true) ?: 'u1';
     
     echo '<style>
         .recipe-meta-table { width: 100%; border-collapse: collapse; }
@@ -79,7 +81,47 @@ function child_recipe_meta_box_callback($post) {
     echo '<tr><td><label>Diet Tags (comma-separated):</label></td><td><input type="text" name="recipe_diet" value="' . esc_attr($diet) . '" placeholder="vegetarian, quick, healthy"></td></tr>';
     echo '</table>';
     echo '</div>';
-    
+
+    // Show template variant selector only for posts in the Cooking hub (by slug or ancestor name)
+    $show_variant = false;
+    $terms = get_the_terms($post->ID, 'category');
+    if (!empty($terms) && !is_wp_error($terms)) {
+        foreach ($terms as $t) {
+            if (in_array(strtolower($t->slug), array('cooking')) || strtolower($t->name) === 'cooking') {
+                $show_variant = true;
+                break;
+            }
+            // check ancestors for a parent named Cooking
+            $anc = get_ancestors($t->term_id, 'category');
+            foreach ($anc as $aid) {
+                $at = get_category($aid);
+                if ($at && (strtolower($at->slug) === 'cooking' || strtolower($at->name) === 'cooking')) {
+                    $show_variant = true;
+                    break 2;
+                }
+            }
+        }
+    }
+
+    if ($show_variant) {
+        echo '<div class="recipe-meta-section">';
+        echo '<h4>Template Variant</h4>';
+        echo '<p>Select the recipe layout variant for this post. Default is <strong>Classic (u1)</strong>.</p>';
+        echo '<select name="_template_variant">';
+        $options = array(
+            'u1' => 'Classic (U1) — full recipe',
+            'v2' => 'Time & Temp (V2) — quick answer',
+            'v3' => 'Five-Ingredient (V3) — short ingredient list',
+            'v5' => 'How-To (V5) — technique / no-ingredients'
+        );
+        foreach ($options as $k => $label) {
+            $sel = selected($template_variant, $k, false);
+            echo '<option value="' . esc_attr($k) . '" ' . $sel . '>' . esc_html($label) . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+    }
+
     echo '<p><strong>Note:</strong> This post will use the recipe template because it\'s in a Cooking category. Fill in any fields you want to display.</p>';
 }
 
@@ -122,5 +164,15 @@ function child_save_recipe_meta_box_data($post_id) {
         if (isset($_POST[$field])) {
             update_post_meta($post_id, $field, sanitize_textarea_field($_POST[$field]));
         }
+    }
+
+    // Save template variant if provided. Only allow known values to avoid misuse.
+    if (isset($_POST['_template_variant'])) {
+        $allowed = array('u1','v2','v3','v5');
+        $val = sanitize_text_field($_POST['_template_variant']);
+        if (!in_array($val, $allowed, true)) {
+            $val = 'u1';
+        }
+        update_post_meta($post_id, '_template_variant', $val);
     }
 }

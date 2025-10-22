@@ -1,0 +1,25 @@
+/* PARENT MAPPING:
+	 container: .container
+	 content: .content
+	 grid/columns: .columns_wrap .column-1_2
+	 lists: .trx_addons_list
+	 headings: .h2 .h3 (theme uses typographic rules on h2/h3)
+	 button: .theme_button
+	 tables: .sc_table .table--compact
+ */
+
+/* Scope all fallbacks to the recipe template only to avoid bleed */
+/* Fallback 2-col grid if parent columns are not present */
+.recipe-template .c-recipe-grid { display:block; gap:1.25rem; }
+@media (min-width:768px) {
+	.recipe-template .c-recipe-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+}
+
+/* Compact table alignment fallback */
+.recipe-template .c-recipe-table th,
+.recipe-template .c-recipe-table td { vertical-align:middle; padding:0.6rem 0.8rem; }
+
+/* Metrics inline strip fallback */
+.recipe-template .c-recipe-metrics { display:flex; flex-wrap:wrap; gap:.5rem .75rem; align-items:center; }
+
+/* Keep file minimal: rules only when parent lacks equivalents */
