@@ -5,28 +5,42 @@
 defined('ABSPATH') || exit;
 $post_id = get_the_ID();
 $recipe = child_get_recipe_fields($post_id);
+// Ad guardrail
+$sections_count = function_exists('child_count_recipe_sections') ? child_count_recipe_sections($recipe) : 3;
+$ad_slots = function_exists('child_ad_density_guardrail') ? child_ad_density_guardrail($sections_count) : array('A1'=>true,'A2'=>true,'A3'=>true,'A4'=>true);
+// per-post layout
+$ad_layout = function_exists('child_get_ad_layout') ? child_get_ad_layout($post_id) : 'A';
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class('post_item_single post_type_' . esc_attr(get_post_type()) . ' recipe-template'); ?>>
 	<div class="container">
 	<div class="content">
-	<section class="v5-intro"><h1 class="post_title"><?php the_title(); ?></h1><?php if (!empty($recipe['intro'])) echo '<p>'.wp_kses_post($recipe['intro']).'</p>'; ?></section>
-	<div class="ad-slot ad-a1 mt-30 mb-30" style="min-height:280px;" aria-hidden="true"></div>
+	<section class="v5-intro"><h1 class="post_title sc_item_title"><?php the_title(); ?></h1><?php if (!empty($recipe['intro'])) echo '<p>'.wp_kses_post($recipe['intro']).'</p>'; ?>
+	<?php $__fields = $recipe; $__ad_decisions = isset($ad_slots) ? $ad_slots : null; get_template_part('template-parts/recipe/partials/metrics-strip', null, array('fields'=>$__fields)); ?>
+	</section>
+	<?php if (!empty($ad_slots['A1'])): ?><div class="ad-slot ad-a1 margin_top_large margin_bottom_large" style="min-height:280px;" aria-hidden="true"></div><?php endif; ?>
 
-	<?php if (!empty($recipe['tools'])): ?><section class="v5-tools"><h3 class="h3"><?php esc_html_e('Tools','rosalinda-child'); ?></h3><ul class="trx_addons_list"><?php foreach($recipe['tools'] as $t) echo '<li><a class="theme_button" href="'.esc_url($t['url']).'">'.esc_html($t['name']).'</a> '.esc_html($t['why']).'</li>'; ?></ul></section><?php endif; ?>
+	<?php get_template_part('template-parts/recipe/partials/tools', null, array('fields'=>$__fields)); ?>
 
-	<?php if (!empty($recipe['steps'])): ?><section class="v5-steps"><h2 class="h2"><?php esc_html_e('Steps','rosalinda-child'); ?></h2><ol class="trx_addons_list trx_addons_list_numbered"><?php foreach($recipe['steps'] as $s) echo '<li>'.wp_kses_post($s).'</li>'; ?></ol></section><?php endif; ?>
+	<?php get_template_part('template-parts/recipe/partials/steps', null, array('fields'=>$__fields)); ?>
 
-	<?php if (!empty($recipe['variations'])): ?><section class="v5-troubleshoot"><h3 class="h3"><?php esc_html_e('Troubleshooting','rosalinda-child'); ?></h3><?php echo wp_kses_post($recipe['variations']); ?></section><?php endif; ?>
+	<?php
+	// Layout B: optional A2.5 after steps
+	$allowed_count = is_array($ad_slots) ? count(array_filter($ad_slots)) : 0;
+	if ($ad_layout === 'B' && $allowed_count >= 3): ?>
+		<div class="ad-slot ad-a2-5 mt-20 mb-20" style="min-height:140px;" aria-hidden="true"></div>
+	<?php endif; ?>
 
-	<div class="ad-slot ad-a2 mt-30 mb-30" style="min-height:150px;" aria-hidden="true"></div>
+	<?php get_template_part('template-parts/recipe/partials/variations', null, array('fields'=>$__fields)); ?>
 
-	<?php if (!empty($recipe['faqs'])): ?><section class="v5-faqs"><h2 class="h2"><?php esc_html_e('FAQ','rosalinda-child'); ?></h2><?php foreach($recipe['faqs'] as $f) echo '<h3 class="h3">'.wp_kses_post($f['q']).'</h3><p>'.wp_kses_post($f['a']).'</p>'; ?></section><?php endif; ?>
+	<?php if (!empty($ad_slots['A2'])): ?><div class="ad-slot ad-a2 mt-30 mb-30" style="min-height:150px;" aria-hidden="true"></div><?php endif; ?>
 
-	<div class="ad-slot ad-a3 mt-30 mb-30" style="min-height:120px;" aria-hidden="true"></div>
+	<?php get_template_part('template-parts/recipe/partials/faq', null, array('fields'=>$__fields)); ?>
 
-	<?php $related = child_related_min($post_id); if (!empty($related['siblings']) || !empty($related['up_link'])) { echo '<section class="v5-related"><h2 class="h2">'.esc_html__('Related','rosalinda-child').'</h2>'; if(!empty($related['up_link'])) echo '<p><a href="'.esc_url($related['up_link']['url']).'">'.esc_html($related['up_link']['title']).'</a></p>'; if(!empty($related['siblings'])) { echo '<ul class="trx_addons_list">'; foreach($related['siblings'] as $s) echo '<li><a href="'.esc_url($s['url']).'">'.esc_html($s['title']).'</a></li>'; echo '</ul>'; } echo '</section>'; } ?>
+	<?php if (!empty($ad_slots['A3'])): ?><div class="ad-slot ad-a3 mt-30 mb-30" style="min-height:120px;" aria-hidden="true"></div><?php endif; ?>
 
-	<div class="ad-slot ad-a4 mt-30 mb-30" style="min-height:90px;" aria-hidden="true"></div>
+	<?php $related = child_related_min($post_id); get_template_part('template-parts/recipe/partials/related', null, array('related'=>$related,'fields'=>$__fields)); ?>
+
+	<?php if (!empty($ad_slots['A4'])): ?><div class="ad-slot ad-a4 mt-30 mb-30" style="min-height:90px;" aria-hidden="true"></div><?php endif; ?>
 
 	<?php // Ensure only HowTo schema for this variant
 	child_recipe_schema_min($post_id); ?>

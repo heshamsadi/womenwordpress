@@ -1,12 +1,12 @@
-/* PARENT MAPPING:
-	 container: .container
-	 content: .content
-	 grid/columns: .columns_wrap .column-1_2
-	 lists: .trx_addons_list
-	 headings: .h2 .h3 (theme uses typographic rules on h2/h3)
-	 button: .theme_button
-	 tables: .sc_table .table--compact
- */
+/* PARENT MAP:
+	container  => .container
+	content    => .content
+	grid/cols  => .columns_wrap, .column-1_2
+	lists      => .trx_addons_list
+	headings   => h2, h3  (also .h2 / .h3 utility classes)
+	button     => .theme_button
+	tables     => .sc_table, .table--compact
+*/
 
 /* Scope all fallbacks to the recipe template only to avoid bleed */
 /* Fallback 2-col grid if parent columns are not present */
@@ -21,5 +21,13 @@
 
 /* Metrics inline strip fallback */
 .recipe-template .c-recipe-metrics { display:flex; flex-wrap:wrap; gap:.5rem .75rem; align-items:center; }
+
+/* Parent heading breaking fix (scoped) */
+.recipe-template h2, .recipe-template h3 { word-break: normal; hyphens: auto; }
+
+/* Ensure parent column utility stacks on mobile if parent lacks it */
+@media (max-width:767px) {
+	.recipe-template .column-1_2 { width:100%; }
+}
 
 /* Keep file minimal: rules only when parent lacks equivalents */

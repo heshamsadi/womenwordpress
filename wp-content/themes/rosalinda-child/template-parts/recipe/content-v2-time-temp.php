@@ -10,75 +10,45 @@ if (empty($recipe['time_temp'])) {
     include get_stylesheet_directory() . '/template-parts/recipe/content.php';
     return;
 }
+
+// sections and guardrail
+$sections_count = function_exists('child_count_recipe_sections') ? child_count_recipe_sections($recipe) : 3;
+$ad_slots = function_exists('child_ad_density_guardrail') ? child_ad_density_guardrail($sections_count) : array('A1'=>true,'A2'=>true,'A3'=>true,'A4'=>true);
+// per-post layout
+$ad_layout = function_exists('child_get_ad_layout') ? child_get_ad_layout($post_id) : 'A';
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class('post_item_single post_type_' . esc_attr(get_post_type()) . ' recipe-template'); ?>>
     <div class="container">
     <div class="content">
     <section class="v2-intro">
-        <h1 class="post_title"><?php the_title(); ?></h1>
+        <h1 class="post_title sc_item_title"><?php the_title(); ?></h1>
         <?php if (!empty($recipe['intro'])): ?><p><?php echo wp_kses_post($recipe['intro']); ?></p><?php endif; ?>
+        <?php $__fields = $recipe; $__ad_decisions = isset($ad_slots) ? $ad_slots : null; get_template_part('template-parts/recipe/partials/metrics-strip', null, array('fields'=>$__fields)); ?>
     </section>
 
-    <div class="ad-slot ad-a1 mt-30 mb-30" style="min-height:280px;" aria-hidden="true"></div>
+    <?php if (!empty($ad_slots['A1'])): ?><div class="ad-slot ad-a1 mt-30 mb-30" style="min-height:280px;" aria-hidden="true"></div><?php endif; ?>
 
-    <section class="v2-time-temp">
-        <h2 class="h2"><?php esc_html_e('Time & Temperature Quick Guide','rosalinda-child'); ?></h2>
-        <table class="sc_table table--compact c-recipe-table">
-        <thead><tr><th><?php esc_html_e('Item','rosalinda-child'); ?></th><th><?php esc_html_e('Temp','rosalinda-child'); ?></th><th><?php esc_html_e('Minutes','rosalinda-child'); ?></th></tr></thead>
-        <tbody>
-        <?php foreach ($recipe['time_temp'] as $tt): ?>
-            <tr>
-                <td><?php echo wp_kses_post($tt['item']); ?></td>
-                <td><?php echo esc_html($tt['temp_c']) ? esc_html($tt['temp_c'].'°C') : esc_html($tt['temp_f'].'°F'); ?></td>
-                <td><?php echo esc_html($tt['minutes']); ?></td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-</section>
+    <?php $__fields = $recipe; get_template_part('template-parts/recipe/partials/time-temp-v2', null, array('fields'=>$__fields)); ?>
 
-<section class="v2-steps">
-    <h3><?php esc_html_e('Quick 3-Step Method','rosalinda-child'); ?></h3>
-    <ol>
-    <?php
-    $steps = array_slice($recipe['steps'], 0, 3);
-    foreach ($steps as $i => $s) {
-        echo '<li>' . wp_kses_post(trim($s)) . '</li>';
-    }
-    ?>
-    </ol>
-</section>
-
-<?php if (!empty($recipe['time_temp'])): ?>
-    <div class="v2-doneness">
-        <h4><?php esc_html_e('Doneness Cues','rosalinda-child'); ?></h4>
-        <ul>
-            <?php foreach ($recipe['time_temp'] as $tt) {
-                if (!empty($tt['internal_temp'])) {
-                    echo '<li>' . esc_html($tt['item'] . ': ' . $tt['internal_temp']) . '</li>';
-                }
-            } ?>
-        </ul>
-    </div>
+<?php
+// Layout B: optional A2.5 after time/temp
+$allowed_count = is_array($ad_slots) ? count(array_filter($ad_slots)) : 0;
+if ($ad_layout === 'B' && $allowed_count >= 3): ?>
+    <div class="ad-slot ad-a2-5 mt-20 mb-20" style="min-height:140px;" aria-hidden="true"></div>
 <?php endif; ?>
 
-    <div class="ad-slot ad-a2 mt-30 mb-30" style="min-height:150px;" aria-hidden="true"></div>
+    <?php $__fields = array('steps'=>array_slice($recipe['steps'],0,3)) + $recipe; get_template_part('template-parts/recipe/partials/steps', null, array('fields'=>$__fields)); ?>
 
-<?php if (!empty($recipe['variations'])): ?>
-    <section class="v2-variations"><h3><?php esc_html_e('Seasoning Ideas','rosalinda-child'); ?></h3>
-        <p><?php echo wp_kses_post($recipe['variations']); ?></p>
-    </section>
-<?php endif; ?>
 
-<?php if (!empty($recipe['faqs'])): ?><section class="v2-faqs"><h3><?php esc_html_e('FAQ','rosalinda-child'); ?></h3><?php foreach($recipe['faqs'] as $faq){ echo '<h4>'.wp_kses_post($faq['q']).'</h4><p>'.wp_kses_post($faq['a']).'</p>'; } ?></section><?php endif; ?>
 
-    <div class="ad-slot ad-a3 mt-30 mb-30" style="min-height:120px;" aria-hidden="true"></div>
+    <?php if (!empty($ad_slots['A2'])): ?><div class="ad-slot ad-a2 mt-30 mb-30" style="min-height:150px;" aria-hidden="true"></div><?php endif; ?>
 
-    <?php $related = child_related_min($post_id); if (!empty($related['up_link']) || !empty($related['siblings'])): ?>
-        <section class="v2-related"><h2 class="h2"><?php esc_html_e('Related','rosalinda-child'); ?></h2>
-            <?php if(!empty($related['up_link'])) echo '<p><a href="'.esc_url($related['up_link']['url']).'">'.esc_html($related['up_link']['title']).'</a></p>'; ?>
-        </section>
-    <?php endif; ?>
+<?php $__fields = $recipe; get_template_part('template-parts/recipe/partials/variations', null, array('fields'=>$__fields)); ?>
+<?php get_template_part('template-parts/recipe/partials/faq', null, array('fields'=>$__fields)); ?>
+
+    <?php if (!empty($ad_slots['A3'])): ?><div class="ad-slot ad-a3 mt-30 mb-30" style="min-height:120px;" aria-hidden="true"></div><?php endif; ?>
+
+    <?php $related = child_related_min($post_id); get_template_part('template-parts/recipe/partials/related', null, array('related'=>$related,'fields'=>$__fields)); ?>
 
     <div class="ad-slot ad-a4 mt-30 mb-30" style="min-height:90px;" aria-hidden="true"></div>
 

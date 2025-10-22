@@ -41,16 +41,25 @@ if ($is_cooking_post) {
                         $variant = get_post_meta(get_the_ID(), '_template_variant', true);
                         if (empty($variant)) { $variant = 'u1'; }
 
-                        // Allowed variants
-                        $allowed = array('u1','v2','v3','v5');
+                        // Allowed variants (include 'legacy','v4','v7')
+                        $allowed = array('u1','v2','v3','v4','v5','v7','legacy');
                         if (!in_array($variant, $allowed, true)) { $variant = 'u1'; }
 
                         switch ($variant) {
                             case 'v2':
                                 $path = get_stylesheet_directory() . '/template-parts/recipe/content-v2-time-temp.php';
                                 break;
+                            case 'v4':
+                                $path = get_stylesheet_directory() . '/template-parts/recipe/content-v4-roundup.php';
+                                break;
                             case 'v3':
                                 $path = get_stylesheet_directory() . '/template-parts/recipe/content-v3-5ing.php';
+                                break;
+                            case 'legacy':
+                                $path = get_stylesheet_directory() . '/template-parts/recipe/content-legacy.php';
+                                break;
+                            case 'v7':
+                                $path = get_stylesheet_directory() . '/template-parts/recipe/content-v7-mealplan.php';
                                 break;
                             case 'v5':
                                 $path = get_stylesheet_directory() . '/template-parts/recipe/content-v5-howto.php';

@@ -11,6 +11,27 @@ namespace SmartLife\Child;
 
 defined('ABSPATH') || exit;
 
+// Load CLI and admin helpers
+require_once get_stylesheet_directory() . '/inc/content-score.php';
+if (defined('WP_CLI') && WP_CLI) {
+    require_once get_stylesheet_directory() . '/inc/cli-import.php';
+}
+// Hub helpers (L2/L3 landing templates)
+require_once get_stylesheet_directory() . '/inc/hubs.php';
+// Admin term meta UI for hubs
+if (is_admin()) require_once get_stylesheet_directory() . '/inc/admin-termmeta.php';
+
+// Append Page N to title for paged category hub pages
+add_filter('document_title_parts', function($parts){
+    if (is_category()) {
+        $pg = 0;
+        if (get_query_var('paged')) $pg = (int)get_query_var('paged');
+        if (!$pg && !empty($_GET['pg'])) $pg = (int) $_GET['pg'];
+        if ($pg > 1) $parts['title'] = ($parts['title'] ?? '') . ' – Page ' . $pg;
+    }
+    return $parts;
+});
+
 /* ==========================================================================
    BLOCK PATTERNS
    ========================================================================== */
@@ -490,6 +511,13 @@ if (file_exists(get_stylesheet_directory() . '/inc/recipe-min.php')) {
  */
 if (file_exists(get_stylesheet_directory() . '/inc/recipe-metabox.php')) {
     require_once get_stylesheet_directory() . '/inc/recipe-metabox.php';
+}
+
+/**
+ * Include small icon helper (prefers parent helpers if available)
+ */
+if (file_exists(get_stylesheet_directory() . '/inc/recipe-icons.php')) {
+    require_once get_stylesheet_directory() . '/inc/recipe-icons.php';
 }
 
 /**

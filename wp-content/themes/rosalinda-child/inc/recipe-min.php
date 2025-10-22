@@ -244,7 +244,12 @@ add_action('trashed_post', function($post_id) {
  */
 function child_related_min($post_id) {
     $post_id = (int) $post_id;
-    $cache_key = "recipe_related_{$post_id}";
+
+    // Use categories/terms to build a stable cache key
+    $cats = wp_get_post_categories($post_id);
+    sort($cats);
+    $key_hash = md5($post_id . '|' . implode(',', $cats));
+    $cache_key = "recipe_related_{$key_hash}";
     $cached = get_transient($cache_key);
     if ($cached !== false) {
         return $cached;
@@ -252,45 +257,91 @@ function child_related_min($post_id) {
 
     $related = array('up_link' => null, 'siblings' => array(), 'guide' => null);
 
-    $categories = get_the_category($post_id);
-    if (!empty($categories)) {
-        // Pick the deepest category
-        $deepest = null; $max_depth = -1;
-        foreach ($categories as $cat) {
-            $depth = 0; $t = $cat;
-            while ($t && $t->parent) { $depth++; $t = get_category($t->parent); }
-            if ($depth > $max_depth) { $max_depth = $depth; $deepest = $cat; }
+    if (empty($cats)) {
+        set_transient($cache_key, $related, 12 * HOUR_IN_SECONDS);
+        return $related;
+    }
+
+    // Pick the deepest category among assigned categories
+    $deepest = null; $max_depth = -1;
+    foreach ($cats as $cat_id) {
+        $t = get_category($cat_id);
+        if (!$t) continue;
+        $depth = 0; $p = $t;
+        while ($p && $p->parent) { $depth++; $p = get_category($p->parent); }
+        if ($depth > $max_depth) { $max_depth = $depth; $deepest = $t; }
+    }
+
+    if ($deepest) {
+        // up_link: parent category (L3 hub)
+        if ($deepest->parent) {
+            $parent = get_category($deepest->parent);
+            if ($parent) {
+                $related['up_link'] = array('title' => $parent->name, 'url' => get_category_link($parent->term_id));
+            }
         }
 
-        if ($deepest) {
-            // parent (L3 hub) -> if deepest has parent, use its parent as up_link
-            if ($deepest->parent) {
-                $parent = get_category($deepest->parent);
-                if ($parent) {
-                    $related['up_link'] = array('title' => $parent->name, 'url' => get_category_link($parent->term_id));
+        // Siblings: recent posts in same deepest category that share at least one tag
+        $post_tags = wp_get_post_tags($post_id, array('fields' => 'ids'));
+        $tag_ids = !empty($post_tags) ? $post_tags : array();
+
+        if (!empty($tag_ids)) {
+            $s_args = array(
+                'post_type' => 'post',
+                'posts_per_page' => 6, // fetch more and filter
+                'category__in' => array($deepest->term_id),
+                'post__not_in' => array($post_id),
+                'orderby' => 'date',
+                'order' => 'DESC',
+                'no_found_rows' => true,
+                'fields' => 'ids',
+            );
+            $cand = get_posts($s_args);
+            $count = 0;
+            foreach ($cand as $cid) {
+                if ($count >= 2) break;
+                $shared = array_intersect($tag_ids, wp_get_post_tags($cid, array('fields'=>'ids')));
+                if (!empty($shared)) {
+                    $related['siblings'][] = array('title' => get_the_title($cid), 'url' => get_permalink($cid));
+                    $count++;
                 }
             }
+        } else {
+            // Fallback: recent 2 posts in same category
+            $s2 = get_posts(array('post_type'=>'post','posts_per_page'=>2,'category__in'=>array($deepest->term_id),'post__not_in'=>array($post_id),'orderby'=>'date','order'=>'DESC','no_found_rows'=>true,'fields'=>'ids'));
+            foreach ($s2 as $sid) $related['siblings'][] = array('title'=>get_the_title($sid),'url'=>get_permalink($sid));
+        }
 
-            // siblings: up to 2 recent posts in same deepest category
-            $siblings = get_posts(array(
-                'post_type' => 'post', 'posts_per_page' => 2, 'post__not_in' => array($post_id), 'category__in' => array($deepest->term_id), 'orderby' => 'date', 'order' => 'DESC'
-            ));
-            foreach ($siblings as $s) {
-                $related['siblings'][] = array('title' => $s->post_title, 'url' => get_permalink($s->ID));
+        // Guide: preferred tag how-to/storage/guide and matching method/protein tag
+        $preferred_tags = array('how-to','storage','guide');
+        $guide_args = array(
+            'post_type' => 'post',
+            'posts_per_page' => 5,
+            'category__in' => array($deepest->term_id),
+            'post__not_in' => array($post_id),
+            'tag_slug__in' => $preferred_tags,
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'no_found_rows' => true,
+            'fields' => 'ids',
+        );
+        $cand_guides = get_posts($guide_args);
+        if (!empty($cand_guides)) {
+            // prefer same method/protein
+            $best = null; $best_score = -1;
+            $post_tag_slugs = wp_get_post_tags($post_id, array('fields'=>'slugs'));
+            foreach ($cand_guides as $gid) {
+                $g_tags = wp_get_post_tags($gid, array('fields'=>'slugs'));
+                $score = count(array_intersect($post_tag_slugs, $g_tags));
+                if ($score > $best_score) { $best_score = $score; $best = $gid; }
             }
-
-            // guide: find 1 post tagged with how-to/storage/guide in same category
-            $guide = get_posts(array(
-                'post_type' => 'post', 'posts_per_page' => 1, 'post__not_in' => array($post_id), 'category__in' => array($deepest->term_id), 'tag_slug__in' => array('how-to','storage','guide'), 'orderby' => 'date', 'order' => 'DESC'
-            ));
-            if (!empty($guide)) {
-                $g = $guide[0];
-                $related['guide'] = array('title' => $g->post_title, 'url' => get_permalink($g->ID));
+            if ($best) {
+                $related['guide'] = array('title'=>get_the_title($best),'url'=>get_permalink($best));
             }
         }
     }
 
-    // Cache for 12 hours
+    // Cache for 12 hours keyed by hash
     set_transient($cache_key, $related, 12 * HOUR_IN_SECONDS);
     return $related;
 }
@@ -385,4 +436,62 @@ function child_recipe_schema_min($post_id) {
     }
 
     echo '<script type="application/ld+json">' . wp_json_encode($out, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . '</script>' . "\n";
+}
+
+/**
+ * Count visible recipe sections to estimate mobile content height.
+ * Accepts the normalized fields array from child_get_recipe_fields().
+ *
+ * @param array $fields
+ * @return int
+ */
+function child_count_recipe_sections($fields) {
+    $count = 0;
+    $checks = array('ingredients','steps','time_temp','tools','faqs','nutrition','substitutions','storage','variations');
+    foreach ($checks as $k) {
+        if (!empty($fields[$k])) $count++;
+    }
+    // Intro/hero counts as one
+    if (!empty($fields['intro'])) $count++;
+    return max(1, $count);
+}
+
+
+/**
+ * Ad density guardrail: decide which ad slots (A1..A4) to render so mobile ad density <= ~30%.
+ * Heuristic: allowed_ads = floor(0.36 * sections_count), min 1, max 4.
+ * Priority: A1, A2, A3, A4 — hide A4 first, then A3 if needed.
+ *
+ * @param int $sections_count
+ * @return array Associative array like ['A1'=>true,'A2'=>true,'A3'=>false,'A4'=>false]
+ */
+function child_ad_density_guardrail($sections_count) {
+    $sections_count = max(1, (int)$sections_count);
+    $allowed = (int) floor(0.36 * $sections_count);
+    // Ensure at least one ad (A1) shows for monetization
+    $allowed = max(1, $allowed);
+    $allowed = min(4, $allowed);
+
+    $slots = array('A1'=>false,'A2'=>false,'A3'=>false,'A4'=>false);
+    $order = array('A1','A2','A3','A4');
+    for ($i=0;$i<$allowed;$i++) {
+        $slots[$order[$i]] = true;
+    }
+    return $slots;
+}
+
+
+/**
+ * Return per-post ad layout choice. Stored in postmeta 'ad_layout'.
+ * Valid values: 'A' or 'B' (default 'A').
+ *
+ * @param int $post_id
+ * @return string 'A'|'B'
+ */
+function child_get_ad_layout($post_id) {
+    $post_id = (int) $post_id;
+    $v = get_post_meta($post_id, 'ad_layout', true);
+    if (empty($v)) return 'A';
+    $v = strtoupper(substr($v,0,1));
+    return ($v === 'B') ? 'B' : 'A';
 }

@@ -8,6 +8,12 @@ defined('ABSPATH') || exit;
 $post_id = get_the_ID();
 $recipe = child_get_recipe_fields($post_id);
 $related = child_related_min($post_id);
+// Ad density guardrail: decide which slots to render
+// sections and guardrail
+$sections_count = function_exists('child_count_recipe_sections') ? child_count_recipe_sections($recipe) : 3;
+$ad_slots = function_exists('child_ad_density_guardrail') ? child_ad_density_guardrail($sections_count) : array('A1'=>true,'A2'=>true,'A3'=>true,'A4'=>true);
+// per-post layout choice
+$ad_layout = function_exists('child_get_ad_layout') ? child_get_ad_layout($post_id) : 'A';
 
 // Helper: parent grid classes prefer, fallback to .c-recipe-grid
 $grid_left = 'column-1';
@@ -19,24 +25,25 @@ $grid_right = 'column-2';
     <div class="container">
     <div class="content">
     <header class="post_header post_header_single">
-        <h1 class="post_title"><?php the_title(); ?></h1>
+        <h1 class="post_title sc_item_title"><?php the_title(); ?></h1>
     <?php if (!empty($recipe['intro'])): ?>
         <p class="post_intro"><?php echo wp_kses_post($recipe['intro']); ?></p>
     <?php endif; ?>
-        <p><a href="#recipe-card" class="theme_button"><?php esc_html_e('Jump to Recipe', 'rosalinda-child'); ?></a></p>
+    <p><a href="#recipe-card" class="theme_button"><?php esc_html_e('JUMP TO RECIPE', 'rosalinda-child'); ?></a></p>
     
-    <div class="recipe_metrics" role="group" aria-label="Recipe metrics">
-        <?php if (!empty($recipe['prep'])): ?><span class="metric metric-prep"><?php printf(esc_html__('%s min prep','rosalinda-child'), esc_html($recipe['prep'])); ?></span><?php endif; ?>
-        <?php if (!empty($recipe['cook'])): ?><span class="metric metric-cook"><?php printf(esc_html__('%s min cook','rosalinda-child'), esc_html($recipe['cook'])); ?></span><?php endif; ?>
-        <?php if (!empty($recipe['total'])): ?><span class="metric metric-total"><?php printf(esc_html__('%s min total','rosalinda-child'), esc_html($recipe['total'])); ?></span><?php endif; ?>
-        <?php if (!empty($recipe['yield'])): ?><span class="metric metric-yield"><?php echo wp_kses_post($recipe['yield']); ?></span><?php endif; ?>
-        <?php if (!empty($recipe['nutrition']['kcal'])): ?><span class="metric metric-kcal"><?php printf(esc_html__('%s kcal','rosalinda-child'), esc_html($recipe['nutrition']['kcal'])); ?></span><?php endif; ?>
-        <?php if (!empty($recipe['method'])): ?><span class="metric metric-method"><?php echo esc_html($recipe['method']); ?></span><?php endif; ?>
-        <?php if (!empty($recipe['diet'])): ?><span class="metric metric-diet"><?php echo esc_html(implode(', ', $recipe['diet'])); ?></span><?php endif; ?>
-    </div>
+    <?php
+    // Metrics strip (icons + chips). Uses child helper which prefers parent helpers when available.
+    $__fields = $recipe; // local alias for partials
+    $__ad_decisions = isset($ad_slots) ? $ad_slots : null;
+    get_template_part('template-parts/recipe/partials/metrics-strip', null, array('fields'=>$__fields));
+    ?>
     </header>
 
-    <div class="ad-slot ad-a1 mt-30 mb-30" style="min-height:280px;" aria-hidden="true"></div>
+    <?php
+    // Render A1 always first if allowed
+    if (!empty($ad_slots['A1'])): ?>
+    <div class="ad-slot ad-a1 margin_top_large margin_bottom_large" style="min-height:280px;" aria-hidden="true"></div>
+    <?php endif; ?>
 
     <div class="post_content post_content_single entry-content">
         <?php the_content(); ?>
@@ -44,84 +51,41 @@ $grid_right = 'column-2';
         <section class="section-block mt-30">
             <div class="columns_wrap">
                 <div class="column-1_2">
-                    <div class="c-recipe-grid">
-                        <?php if (!empty($recipe['ingredients'])): ?>
-                            <section class="recipe-ingredients">
-                                <h2 class="h2"><?php esc_html_e('Ingredients', 'rosalinda-child'); ?></h2>
-                                <ul class="trx_addons_list">
-                                    <?php foreach ($recipe['ingredients'] as $ing): if (trim($ing)==='') continue; ?>
-                                        <li><?php echo wp_kses_post($ing); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </section>
-                        <?php endif; ?>
-                    </div>
+                    <?php get_template_part('template-parts/recipe/partials/ingredients', null, array('fields'=>$__fields)); ?>
                 </div>
                 <div class="column-1_2">
-                    <?php if (!empty($recipe['steps'])): ?>
-                        <section class="recipe-steps">
-                            <h2 class="h2"><?php esc_html_e('Instructions', 'rosalinda-child'); ?></h2>
-                            <ol class="trx_addons_list trx_addons_list_numbered">
-                                <?php foreach ($recipe['steps'] as $i => $s): if (trim($s)==='') continue; ?>
-                                    <li><?php echo wp_kses_post($s); ?></li>
-                                <?php endforeach; ?>
-                            </ol>
-                        </section>
-                    <?php endif; ?>
+                    <?php get_template_part('template-parts/recipe/partials/steps', null, array('fields'=>$__fields)); ?>
                 </div>
             </div>
         </section>
 
-    <?php if (!empty($recipe['time_temp'])): ?>
-        <section class="section-block mt-30">
-            <h2 class="h2"><?php esc_html_e('Time & Temperature', 'rosalinda-child'); ?></h2>
-            <table class="sc_table table--compact c-recipe-table">
-                <thead><tr><th><?php esc_html_e('Item','rosalinda-child'); ?></th><th><?php esc_html_e('Temp','rosalinda-child'); ?></th><th><?php esc_html_e('Minutes','rosalinda-child'); ?></th></tr></thead>
-                <tbody>
-                <?php foreach ($recipe['time_temp'] as $tt): ?>
-                    <tr>
-                        <td><?php echo wp_kses_post($tt['item']); ?></td>
-                        <td><?php echo esc_html($tt['temp_c']) ? esc_html($tt['temp_c'].'°C') : esc_html($tt['temp_f'].'°F'); ?></td>
-                        <td><?php echo esc_html($tt['minutes']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </section>
+    <?php get_template_part('template-parts/recipe/partials/time-temp', null, array('fields'=>$__fields)); ?>
+
+    <?php
+    // Layout B: optional extra ad slot A2.5 after Time & Temp.
+    $allowed_count = is_array($ad_slots) ? count(array_filter($ad_slots)) : 0;
+    if ($ad_layout === 'B' && $allowed_count >= 3) :
+    ?>
+    <div class="ad-slot ad-a2-5 mt-20 mb-20" style="min-height:140px;" aria-hidden="true"></div>
     <?php endif; ?>
 
+    <?php
+    // Layout A: A2 here. Layout B: A2 here and optionally A2.5 after time/temp (handled below).
+    if (!empty($ad_slots['A2'])): ?>
     <div class="ad-slot ad-a2 mt-30 mb-30" style="min-height:150px;" aria-hidden="true"></div>
-
-    <?php if (!empty($recipe['substitutions'])): ?>
-        <section class="recipe-substitutions"><h3 class="h3"><?php esc_html_e('Substitutions','rosalinda-child'); ?></h3><p><?php echo wp_kses_post($recipe['substitutions']); ?></p></section>
-    <?php endif; ?>
-    <?php if (!empty($recipe['storage'])): ?>
-        <section class="recipe-storage"><h4><?php esc_html_e('Storage / Reheat','rosalinda-child'); ?></h4><p><?php echo wp_kses_post($recipe['storage']); ?></p></section>
-    <?php endif; ?>
-    <?php if (!empty($recipe['variations'])): ?>
-        <section class="recipe-variations"><h4><?php esc_html_e('Variations / Serving','rosalinda-child'); ?></h4><p><?php echo wp_kses_post($recipe['variations']); ?></p></section>
     <?php endif; ?>
 
-    <?php if (!empty($recipe['tools'])): ?>
-        <section class="recipe-tools"><h3 class="h3"><?php esc_html_e('Tools','rosalinda-child'); ?></h3>
-            <ul class="trx_addons_list">
-            <?php foreach ($recipe['tools'] as $tool): ?>
-                <li><a class="theme_button" href="<?php echo esc_url($tool['url']); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($tool['name']); ?></a><?php if (!empty($tool['why'])): ?> <small><?php echo esc_html($tool['why']); ?></small><?php endif; ?></li>
-            <?php endforeach; ?>
-            </ul>
-        </section>
-    <?php endif; ?>
+    <?php get_template_part('template-parts/recipe/partials/subs', null, array('fields'=>$__fields)); ?>
+    <?php get_template_part('template-parts/recipe/partials/storage', null, array('fields'=>$__fields)); ?>
+    <?php get_template_part('template-parts/recipe/partials/variations', null, array('fields'=>$__fields)); ?>
 
-    <?php if (!empty($recipe['faqs'])): ?>
-        <section class="recipe-faqs">
-            <h2 class="h2"><?php esc_html_e('Frequently Asked Questions','rosalinda-child'); ?></h2>
-            <?php foreach ($recipe['faqs'] as $faq): ?>
-                <div class="faq"><h3 class="h3"><?php echo wp_kses_post($faq['q']); ?></h3><p><?php echo wp_kses_post($faq['a']); ?></p></div>
-            <?php endforeach; ?>
-        </section>
-    <?php endif; ?>
+    <?php get_template_part('template-parts/recipe/partials/tools', null, array('fields'=>$__fields)); ?>
 
+    <?php get_template_part('template-parts/recipe/partials/faq', null, array('fields'=>$__fields)); ?>
+
+    <?php if (!empty($ad_slots['A3'])): ?>
     <div class="ad-slot ad-a3 mt-30 mb-30" style="min-height:120px;" aria-hidden="true"></div>
+    <?php endif; ?>
 
     <?php if (!empty($recipe['nutrition']) && !empty($recipe['nutrition']['kcal'])): ?>
         <section id="nutrition" class="recipe-nutrition"><h2 class="h2"><?php esc_html_e('Nutrition Facts','rosalinda-child'); ?></h2>
@@ -134,15 +98,11 @@ $grid_right = 'column-2';
         </section>
     <?php endif; ?>
 
-    <?php if (!empty($related['up_link']) || !empty($related['siblings']) || !empty($related['guide'])): ?>
-        <section class="recipe-related"><h2 class="h2"><?php esc_html_e('More Recipes','rosalinda-child'); ?></h2>
-            <?php if (!empty($related['up_link'])): ?><p><a href="<?php echo esc_url($related['up_link']['url']); ?>"><?php echo esc_html($related['up_link']['title']); ?></a></p><?php endif; ?>
-            <?php if (!empty($related['siblings'])): ?><ul class="trx_addons_list"><?php foreach ($related['siblings'] as $s): ?><li><a href="<?php echo esc_url($s['url']); ?>"><?php echo esc_html($s['title']); ?></a></li><?php endforeach; ?></ul><?php endif; ?>
-            <?php if (!empty($related['guide'])): ?><p><a href="<?php echo esc_url($related['guide']['url']); ?>"><?php echo esc_html($related['guide']['title']); ?></a></p><?php endif; ?>
-        </section>
-    <?php endif; ?>
+    <?php get_template_part('template-parts/recipe/partials/related', null, array('related'=>$related,'fields'=>$__fields)); ?>
 
+    <?php if (!empty($ad_slots['A4'])): ?>
     <div class="ad-slot ad-a4 mt-30 mb-30" style="min-height:90px;" aria-hidden="true"></div>
+    <?php endif; ?>
 
         <div id="recipe-card"></div>
         <?php child_recipe_schema_min($post_id); ?>
