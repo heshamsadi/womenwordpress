@@ -1,0 +1,82 @@
+/*
+ Theme Name: Rosalinda Child
+ Theme URI: https://example.com
+ Description: Child theme for rosalinda
+ Author: Me
+ Author URI: https://example.com
+ Template: rosalinda
+ Version: 1.0.0
+ Text Domain: rosalinda-child
+ Requires at least: 6.5
+ Requires PHP: 7.4
+*/
+/* Keep empty: styles should go in /assets/css/child.css or theme.json presets */
+/*
+Theme Name: Rosalinda Child
+Description: Child theme for Rosalinda - Custom menu structure for women's lifestyle hub
+Author: Custom Development
+Author URI: https://github.com/heshamsadi/womenwordpress
+Template: rosalinda
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: rosalinda-child
+*/
+
+/* ==========================================================================
+   Child Theme Customizations
+   Add your custom CSS below this line to override parent theme styles
+   ========================================================================== */
+
+/* The parent theme (Rosalinda) styles are automatically loaded by functions.php */
+/* Only add custom overrides here if needed */
+
+/* ==========================================================================
+   Ensure dropdown menus are visible
+   ========================================================================== */
+
+/* Make sure sub-menus appear on hover */
+.sc_layouts_menu_nav > li:hover > ul,
+.sc_layouts_menu_nav > li.sfHover > ul,
+.sc_layouts_menu_nav li li:hover > ul,
+.sc_layouts_menu_nav li li.sfHover > ul {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Force display of submenus on parent hover */
+.menu_main_nav > li:hover > ul.sub-menu,
+.sc_layouts_menu_nav > li:hover > ul.sub-menu {
+    display: block !important;
+    left: 0 !important;
+    top: 100% !important;
+}
+
+/* Ensure menu has proper z-index */
+.sc_layouts_menu_nav ul {
+    z-index: 9999;
+}
+
+.post_item_single{
+    background: red !important;
+}
+
+
+/* Example: Custom colors */
+/*
+:root {
+    --theme-color-primary: #your-brand-color;
+}
+*/
+
+/* Example: Custom header adjustments */
+/*
+.top_panel {
+    background-color: #your-color;
+}
+*/
+
+/* ==========================================================================
+   End Customizations
+   ========================================================================== */
