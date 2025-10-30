@@ -1,0 +1,367 @@
+/**
+ * Recipe-Specific Styles
+ * Rosalinda Child Theme - Recipe Edition
+ * 
+ * BEM Naming Convention: .rc-recipe__element--modifier
+ * rc = Recipe Component
+ * 
+ * @package Rosalinda_Child
+ * @since 1.0.0
+ */
+
+/* ==========================================================================
+   Recipe Single Page Layout
+   ========================================================================== */
+
+.rc-recipe {
+	margin: 0 auto;
+	max-width: 100%;
+}
+
+/* Recipe Header Section */
+.rc-recipe__header {
+	margin-bottom: 2.5rem;
+}
+
+.rc-recipe__title {
+	font-size: 2.25rem;
+	line-height: 1.2;
+	margin-bottom: 1.5rem;
+	font-weight: 700;
+	color: #1a1a1a;
+}
+
+.rc-recipe__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	margin-bottom: 1.5rem;
+	padding: 1.25rem;
+	background: #f8f8f8;
+	border-radius: 8px;
+	font-size: 0.95rem;
+}
+
+.rc-recipe__meta-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.rc-recipe__meta-icon {
+	font-size: 1.2rem;
+	line-height: 1;
+}
+
+.rc-recipe__meta-label {
+	font-weight: 600;
+	color: #555;
+}
+
+.rc-recipe__meta-value {
+	color: #222;
+}
+
+.rc-recipe__image {
+	margin-bottom: 1.5rem;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.rc-recipe__image img {
+	width: 100%;
+	height: auto;
+	display: block;
+	border-radius: 8px;
+}
+
+.rc-recipe__description {
+	font-size: 1.1rem;
+	line-height: 1.6;
+	color: #444;
+	margin-bottom: 2rem;
+	font-style: italic;
+}
+
+/* Recipe Details Grid (Ingredients + Nutrition) */
+.rc-recipe__details-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2rem;
+	margin-bottom: 2.5rem;
+}
+
+.rc-recipe__section {
+	background: #fff;
+	padding: 1.5rem;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+}
+
+.rc-recipe__section-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+	color: #1a1a1a;
+	border-bottom: 3px solid #333;
+	padding-bottom: 0.5rem;
+}
+
+/* Ingredients List */
+.rc-recipe__ingredients-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.rc-recipe__ingredients-list li {
+	padding: 0.6rem 0;
+	padding-left: 1.75rem;
+	position: relative;
+	line-height: 1.6;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.rc-recipe__ingredients-list li:last-child {
+	border-bottom: none;
+}
+
+.rc-recipe__ingredients-list li:before {
+	content: "✓";
+	position: absolute;
+	left: 0;
+	color: #4CAF50;
+	font-weight: bold;
+	font-size: 1.1rem;
+}
+
+/* Nutrition List */
+.rc-recipe__nutrition-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.rc-recipe__nutrition-list li {
+	padding: 0.6rem 0;
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 1px solid #f0f0f0;
+	line-height: 1.5;
+}
+
+.rc-recipe__nutrition-list li:last-child {
+	border-bottom: none;
+}
+
+.rc-recipe__nutrition-list strong {
+	color: #333;
+	font-weight: 600;
+}
+
+.rc-recipe__calories {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #FF6B6B;
+	margin-bottom: 1rem;
+	padding: 0.75rem;
+	background: #FFF5F5;
+	border-radius: 6px;
+	text-align: center;
+}
+
+/* Instructions Section */
+.rc-recipe__instructions {
+	margin-bottom: 2rem;
+}
+
+.rc-recipe__instructions .rc-recipe__section-title {
+	border-bottom-color: #4CAF50;
+}
+
+.rc-recipe__content {
+	font-size: 1.05rem;
+	line-height: 1.8;
+	color: #333;
+}
+
+.rc-recipe__content h3 {
+	font-size: 1.25rem;
+	margin-top: 1.5rem;
+	margin-bottom: 0.75rem;
+	font-weight: 600;
+	color: #222;
+}
+
+.rc-recipe__content ol,
+.rc-recipe__content ul {
+	margin: 1rem 0;
+	padding-left: 2rem;
+}
+
+.rc-recipe__content ol li,
+.rc-recipe__content ul li {
+	margin-bottom: 0.75rem;
+	line-height: 1.7;
+}
+
+.rc-recipe__content p {
+	margin-bottom: 1rem;
+}
+
+/* Recipe Tags (Dietary Info) */
+.rc-recipe__tags {
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+	background: #F0F8FF;
+	border-radius: 6px;
+	border-left: 4px solid #2196F3;
+}
+
+.rc-recipe__tags strong {
+	color: #1976D2;
+	margin-right: 0.5rem;
+}
+
+/* Print Button */
+.rc-recipe__print-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.875rem 1.75rem;
+	background: #333;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.3s ease;
+	margin-bottom: 1.5rem;
+}
+
+.rc-recipe__print-btn:hover {
+	background: #555;
+}
+
+.rc-recipe__print-btn:active {
+	transform: scale(0.98);
+}
+
+/* Social Share Section */
+.rc-recipe__share {
+	margin-top: 2rem;
+	padding-top: 2rem;
+	border-top: 2px solid #e0e0e0;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+/* Tablet Breakpoint */
+@media (max-width: 768px) {
+	.rc-recipe__title {
+		font-size: 1.875rem;
+	}
+	
+	.rc-recipe__details-grid {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+	}
+	
+	.rc-recipe__meta {
+		gap: 1rem;
+	}
+	
+	.rc-recipe__section {
+		padding: 1.25rem;
+	}
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 480px) {
+	.rc-recipe__title {
+		font-size: 1.5rem;
+	}
+	
+	.rc-recipe__meta {
+		flex-direction: column;
+		gap: 0.75rem;
+		font-size: 0.9rem;
+	}
+	
+	.rc-recipe__section-title {
+		font-size: 1.25rem;
+	}
+	
+	.rc-recipe__content {
+		font-size: 1rem;
+	}
+	
+	.rc-recipe__print-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+	.rc-recipe__print-btn,
+	.rc-recipe__share,
+	.site-header,
+	.site-footer,
+	.sidebar,
+	.comments-area {
+		display: none !important;
+	}
+	
+	.rc-recipe {
+		max-width: 100%;
+	}
+	
+	.rc-recipe__details-grid {
+		grid-template-columns: 1fr 1fr;
+		page-break-inside: avoid;
+	}
+	
+	.rc-recipe__section {
+		border: 1px solid #ccc;
+		page-break-inside: avoid;
+	}
+	
+	.rc-recipe__image img {
+		max-height: 400px;
+		object-fit: cover;
+	}
+	
+	body {
+		background: white;
+	}
+}
+
+/* ==========================================================================
+   Accessibility Enhancements
+   ========================================================================== */
+
+.rc-recipe__meta-item:focus-within,
+.rc-recipe__print-btn:focus {
+	outline: 2px solid #2196F3;
+	outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.rc-recipe__sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
