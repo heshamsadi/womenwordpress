@@ -45,7 +45,7 @@ while ( have_posts() ) :
 			<h1 class="rc-recipe__title"><?php the_title(); ?></h1>
 			
 			<!-- Recipe Meta Facts -->
-			<div class="rc-recipe__meta">
+			<ul class="rc-recipe__meta" role="list">
 				<?php
 				// Prep Time
 				if ( ! empty( $prep_time ) ) {
@@ -59,59 +59,64 @@ while ( have_posts() ) :
 				
 				// Servings
 				if ( ! empty( $servings ) ) {
-					echo '<span class="rc-recipe__meta-item">';
-					echo '<span class="rc-recipe__meta-icon">🍽️</span> ';
+					echo '<li class="rc-recipe__meta-item">';
+					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">🍽️</span> ';
 					echo '<span class="rc-recipe__meta-label">Servings:</span> ';
 					echo '<span class="rc-recipe__meta-value">' . esc_html( $servings ) . '</span>';
-					echo '</span>';
+					echo '</li>';
 				}
 				
 				// Difficulty
 				if ( ! empty( $difficulty ) ) {
-					echo '<span class="rc-recipe__meta-item">';
-					echo '<span class="rc-recipe__meta-icon">📊</span> ';
+					echo '<li class="rc-recipe__meta-item">';
+					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">📊</span> ';
 					echo '<span class="rc-recipe__meta-label">Difficulty:</span> ';
 					echo '<span class="rc-recipe__meta-value">' . esc_html( $difficulty ) . '</span>';
-					echo '</span>';
+					echo '</li>';
 				}
 				
 				// Cuisine
 				if ( ! empty( $cuisine ) ) {
-					echo '<span class="rc-recipe__meta-item">';
-					echo '<span class="rc-recipe__meta-icon">🌍</span> ';
+					echo '<li class="rc-recipe__meta-item">';
+					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">🌍</span> ';
 					echo '<span class="rc-recipe__meta-label">Cuisine:</span> ';
 					echo '<span class="rc-recipe__meta-value">' . esc_html( $cuisine ) . '</span>';
-					echo '</span>';
+					echo '</li>';
 				}
 				
 				// Course
 				if ( ! empty( $course ) ) {
-					echo '<span class="rc-recipe__meta-item">';
-					echo '<span class="rc-recipe__meta-icon">🍴</span> ';
+					echo '<li class="rc-recipe__meta-item">';
+					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">🍴</span> ';
 					echo '<span class="rc-recipe__meta-label">Course:</span> ';
 					echo '<span class="rc-recipe__meta-value">' . esc_html( $course ) . '</span>';
-					echo '</span>';
+					echo '</li>';
 				}
 				
 				// Spicy Level
 				if ( ! empty( $spicy ) && $spicy > 0 ) {
-					echo '<span class="rc-recipe__meta-item">';
-					echo '<span class="rc-recipe__meta-icon">🌶️</span> ';
+					echo '<li class="rc-recipe__meta-item">';
+					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">🌶️</span> ';
 					echo '<span class="rc-recipe__meta-label">Spicy:</span> ';
 					echo '<span class="rc-recipe__meta-value">' . str_repeat( '🔥', intval( $spicy ) ) . '</span>';
-					echo '</span>';
+					echo '</li>';
 				}
 				?>
-			</div>
+			</ul>
 			
 			<!-- Featured Image -->
 			<?php if ( has_post_thumbnail() ) : ?>
 				<div class="rc-recipe__image">
 					<?php 
+					$image_alt = get_post_meta( get_post_thumbnail_id(), '_wp_attachment_image_alt', true );
+					if ( empty( $image_alt ) ) {
+						$image_alt = get_the_title() . ' - Recipe Image';
+					}
+					
 					the_post_thumbnail( 
 						'large', 
 						array( 
-							'alt' => get_the_title(),
+							'alt' => esc_attr( $image_alt ),
 							'itemprop' => 'image'
 						) 
 					); 
@@ -125,6 +130,9 @@ while ( have_posts() ) :
 					<?php the_excerpt(); ?>
 				</div>
 			<?php endif; ?>
+			
+			<!-- Ad Slot: Top (after excerpt/description) -->
+			<div class="rc-ad-slot is-top" aria-label="Advertisement"></div>
 		</header>
 		
 		<!-- Recipe Details Grid: Ingredients + Nutrition -->
@@ -195,6 +203,9 @@ while ( have_posts() ) :
 			
 		</div><!-- .rc-recipe__details-grid -->
 		
+		<!-- Ad Slot: Mid (between ingredients and instructions) -->
+		<div class="rc-ad-slot is-mid" aria-label="Advertisement"></div>
+		
 		<!-- Recipe Instructions -->
 		<div class="rc-recipe__section rc-recipe__instructions">
 			<h2 class="rc-recipe__section-title">Instructions</h2>
@@ -225,10 +236,13 @@ while ( have_posts() ) :
 		<?php endif; ?>
 		
 		<!-- Print Button -->
-		<button class="rc-recipe__print-btn" onclick="window.print()">
-			<span>🖨️</span>
+		<button class="rc-recipe__print-btn" onclick="window.print()" aria-label="Print this recipe">
+			<span aria-hidden="true">🖨️</span>
 			<span>Print Recipe</span>
 		</button>
+		
+		<!-- Ad Slot: End (after content, before social share) -->
+		<div class="rc-ad-slot is-end" aria-label="Advertisement"></div>
 		
 		<!-- Social Share -->
 		<?php if ( function_exists( 'rosalinda_show_share_links' ) ) : ?>

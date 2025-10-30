@@ -169,21 +169,220 @@ function rosalinda_child_setup() {
 add_action( 'after_setup_theme', 'rosalinda_child_setup', 11 );
 
 /**
+ * Generate Recipe JSON-LD Structured Data
+ * 
+ * Outputs schema.org Recipe markup for Google Rich Results
+ * 
+ * @param int $post_id Recipe post ID
+ * @return array Recipe schema data
+ */
+function rosalinda_child_generate_recipe_schema( $post_id ) {
+	// Get post data
+	$post = get_post( $post_id );
+	if ( ! $post ) {
+		return array();
+	}
+	
+	// Get recipe meta
+	$prep_time = rosalinda_child_get_recipe_meta( $post_id, 'prep_time', '' );
+	$cook_time = rosalinda_child_get_recipe_meta( $post_id, 'time', '' );
+	$servings = rosalinda_child_get_recipe_meta( $post_id, 'servings', '' );
+	$calories = rosalinda_child_get_recipe_meta( $post_id, 'calories', '' );
+	$ingredients = rosalinda_child_get_recipe_meta( $post_id, 'ingredients', '' );
+	$cuisine = rosalinda_child_get_recipe_meta( $post_id, 'cuisine', '' );
+	$course = rosalinda_child_get_recipe_meta( $post_id, 'course', '' );
+	
+	// Fallback: if cook_time is empty but 'time' exists, use it
+	if ( empty( $cook_time ) ) {
+		$cook_time = rosalinda_child_get_recipe_meta( $post_id, 'cook_time', '' );
+	}
+	
+	// Base schema structure
+	$schema = array(
+		'@context'    => 'https://schema.org',
+		'@type'       => 'Recipe',
+		'name'        => get_the_title( $post_id ),
+		'datePublished' => get_the_date( 'c', $post_id ),
+		'dateModified'  => get_the_modified_date( 'c', $post_id ),
+	);
+	
+	// Author
+	$author_id = $post->post_author;
+	$schema['author'] = array(
+		'@type' => 'Person',
+		'name'  => get_the_author_meta( 'display_name', $author_id ),
+	);
+	
+	// Description (excerpt or first 160 chars of content)
+	$description = get_the_excerpt( $post_id );
+	if ( empty( $description ) ) {
+		$description = wp_trim_words( wp_strip_all_tags( $post->post_content ), 30, '...' );
+	}
+	if ( ! empty( $description ) ) {
+		$schema['description'] = $description;
+	}
+	
+	// Image
+	if ( has_post_thumbnail( $post_id ) ) {
+		$image_id = get_post_thumbnail_id( $post_id );
+		$image_data = wp_get_attachment_image_src( $image_id, 'full' );
+		if ( $image_data ) {
+			$schema['image'] = array(
+				'@type'  => 'ImageObject',
+				'url'    => $image_data[0],
+				'width'  => $image_data[1],
+				'height' => $image_data[2],
+			);
+		}
+	}
+	
+	// Recipe Ingredients (split by newline)
+	if ( ! empty( $ingredients ) ) {
+		$ingredients_array = array_filter( array_map( 'trim', explode( "\n", $ingredients ) ) );
+		if ( ! empty( $ingredients_array ) ) {
+			$schema['recipeIngredient'] = $ingredients_array;
+		}
+	}
+	
+	// Recipe Instructions (single HowToStep from content)
+	$content = $post->post_content;
+	if ( ! empty( $content ) ) {
+		// Strip HTML and shortcodes for clean text
+		$instructions_text = wp_strip_all_tags( strip_shortcodes( $content ) );
+		$instructions_text = trim( $instructions_text );
+		
+		if ( ! empty( $instructions_text ) ) {
+			$schema['recipeInstructions'] = array(
+				array(
+					'@type' => 'HowToStep',
+					'text'  => $instructions_text,
+				),
+			);
+		}
+	}
+	
+	// Prep Time (ISO 8601 format)
+	if ( ! empty( $prep_time ) ) {
+		$prep_iso = rosalinda_child_minutes_to_iso8601( $prep_time );
+		if ( ! empty( $prep_iso ) ) {
+			$schema['prepTime'] = $prep_iso;
+		}
+	}
+	
+	// Cook Time (ISO 8601 format)
+	if ( ! empty( $cook_time ) ) {
+		$cook_iso = rosalinda_child_minutes_to_iso8601( $cook_time );
+		if ( ! empty( $cook_iso ) ) {
+			$schema['cookTime'] = $cook_iso;
+		}
+	}
+	
+	// Total Time (sum of prep + cook)
+	if ( ! empty( $prep_time ) || ! empty( $cook_time ) ) {
+		$prep_minutes = 0;
+		$cook_minutes = 0;
+		
+		// Extract minutes from prep_time
+		if ( ! empty( $prep_time ) ) {
+			if ( is_numeric( $prep_time ) ) {
+				$prep_minutes = intval( $prep_time );
+			} else {
+				preg_match( '/\d+/', $prep_time, $matches );
+				$prep_minutes = ! empty( $matches ) ? intval( $matches[0] ) : 0;
+			}
+		}
+		
+		// Extract minutes from cook_time
+		if ( ! empty( $cook_time ) ) {
+			if ( is_numeric( $cook_time ) ) {
+				$cook_minutes = intval( $cook_time );
+			} else {
+				preg_match( '/\d+/', $cook_time, $matches );
+				$cook_minutes = ! empty( $matches ) ? intval( $matches[0] ) : 0;
+			}
+		}
+		
+		$total_minutes = $prep_minutes + $cook_minutes;
+		if ( $total_minutes > 0 ) {
+			$schema['totalTime'] = rosalinda_child_minutes_to_iso8601( $total_minutes );
+		}
+	}
+	
+	// Recipe Yield (servings)
+	if ( ! empty( $servings ) ) {
+		$schema['recipeYield'] = $servings;
+	}
+	
+	// Recipe Category (course)
+	if ( ! empty( $course ) ) {
+		$schema['recipeCategory'] = $course;
+	}
+	
+	// Recipe Cuisine
+	if ( ! empty( $cuisine ) ) {
+		$schema['recipeCuisine'] = $cuisine;
+	}
+	
+	// Nutrition Information
+	if ( ! empty( $calories ) ) {
+		$schema['nutrition'] = array(
+			'@type'    => 'NutritionInformation',
+			'calories' => $calories . ' calories',
+		);
+	}
+	
+	// Remove any null or empty values for cleaner JSON
+	$schema = array_filter( $schema, function( $value ) {
+		return ! empty( $value ) || $value === 0 || $value === '0';
+	} );
+	
+	return $schema;
+}
+
+/**
+ * Output Recipe JSON-LD Schema in <head>
+ * 
+ * Hooks into wp_head to output structured data for single recipes
+ */
+function rosalinda_child_output_recipe_schema() {
+	// Only output on single recipe pages
+	if ( ! is_singular( TRX_ADDONS_CPT_DISHES_PT ) ) {
+		return;
+	}
+	
+	$post_id = get_the_ID();
+	if ( ! $post_id ) {
+		return;
+	}
+	
+	// Generate schema data
+	$schema = rosalinda_child_generate_recipe_schema( $post_id );
+	
+	// Only output if we have required fields
+	if ( empty( $schema['name'] ) || empty( $schema['recipeIngredient'] ) ) {
+		return;
+	}
+	
+	// Output JSON-LD script tag
+	?>
+	<script type="application/ld+json">
+	<?php echo wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT ); ?>
+	</script>
+	<?php
+}
+add_action( 'wp_head', 'rosalinda_child_output_recipe_schema', 5 );
+
+/**
  * Include additional child theme files
  * 
  * Uncomment as you add more functionality:
  * - Recipe meta fields extensions
- * - Recipe schema markup
  * - Custom REST API endpoints
  * - AdSense integration
  */
 
 // if ( file_exists( ROSALINDA_CHILD_DIR . '/inc/recipe-meta-fields.php' ) ) {
 // 	require_once ROSALINDA_CHILD_DIR . '/inc/recipe-meta-fields.php';
-// }
-
-// if ( file_exists( ROSALINDA_CHILD_DIR . '/inc/recipe-schema.php' ) ) {
-// 	require_once ROSALINDA_CHILD_DIR . '/inc/recipe-schema.php';
 // }
 
 // if ( file_exists( ROSALINDA_CHILD_DIR . '/inc/recipe-rest-api.php' ) ) {

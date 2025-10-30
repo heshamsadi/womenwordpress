@@ -40,12 +40,14 @@
 	background: #f8f8f8;
 	border-radius: 8px;
 	font-size: 0.95rem;
+	list-style: none;
 }
 
 .rc-recipe__meta-item {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
+	margin: 0;
 }
 
 .rc-recipe__meta-icon {
@@ -205,8 +207,18 @@
 	line-height: 1.7;
 }
 
+.rc-recipe__content li + li {
+	margin-top: 0.5rem;
+}
+
 .rc-recipe__content p {
 	margin-bottom: 1rem;
+}
+
+.rc-recipe__content h2,
+.rc-recipe__content h3,
+.rc-recipe__content h4 {
+	scroll-margin-top: 100px; /* Anchor offset for fixed headers */
 }
 
 /* Recipe Tags (Dietary Info) */
@@ -364,4 +376,89 @@
 	clip: rect(0, 0, 0, 0);
 	white-space: nowrap;
 	border-width: 0;
+}
+
+/* ==========================================================================
+   AdSense-Ready Ad Slots (CLS Prevention)
+   ========================================================================== */
+
+/* Ad slot placeholders with fixed min-heights to prevent Cumulative Layout Shift */
+.rc-ad-slot {
+	width: 100%;
+	display: block;
+	margin: 2rem auto;
+	background: #f9f9f9;
+	border: 1px dashed #e0e0e0;
+	border-radius: 4px;
+	position: relative;
+	overflow: hidden;
+	transition: background 0.3s ease;
+}
+
+/* Prevent layout shift by reserving space */
+.rc-ad-slot.is-top {
+	min-height: 280px; /* Leaderboard/Large Mobile Banner */
+	margin-top: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.rc-ad-slot.is-mid {
+	min-height: 300px; /* Medium Rectangle */
+	margin: 2.5rem auto;
+}
+
+.rc-ad-slot.is-end {
+	min-height: 320px; /* Large Rectangle/Multiple units */
+	margin-top: 2.5rem;
+	margin-bottom: 1.5rem;
+}
+
+/* Optional: Visual indicator for empty ad slots (remove when ads active) */
+.rc-ad-slot:empty::before {
+	content: "Advertisement";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: #999;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-weight: 600;
+}
+
+/* Hide placeholder text when ad is loaded */
+.rc-ad-slot:not(:empty)::before {
+	display: none;
+}
+
+/* Responsive ad sizing */
+@media (max-width: 768px) {
+	.rc-ad-slot.is-top {
+		min-height: 250px; /* Mobile Banner */
+	}
+	
+	.rc-ad-slot.is-mid {
+		min-height: 280px;
+	}
+	
+	.rc-ad-slot.is-end {
+		min-height: 300px;
+	}
+}
+
+@media (max-width: 480px) {
+	.rc-ad-slot.is-top,
+	.rc-ad-slot.is-mid,
+	.rc-ad-slot.is-end {
+		min-height: 250px; /* Standard Mobile Banner */
+		margin: 1.5rem auto;
+	}
+}
+
+/* Hide ads in print */
+@media print {
+	.rc-ad-slot {
+		display: none !important;
+	}
 }
