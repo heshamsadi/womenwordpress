@@ -391,6 +391,30 @@ function rosalinda_child_add_categories_to_dishes() {
 }
 
 /**
+ * Include Dishes CPT in Category and Tag Archives
+ * 
+ * When viewing a category or tag archive, include both regular posts
+ * and recipes (Dishes CPT) in the query results.
+ * 
+ * @param WP_Query $query The WordPress query object
+ * @since 1.0.0
+ */
+add_action( 'pre_get_posts', 'rosalinda_child_add_dishes_to_category_archives' );
+function rosalinda_child_add_dishes_to_category_archives( $query ) {
+	// Only modify main query on frontend for category/tag archives
+	if ( ! is_admin() && $query->is_main_query() ) {
+		// Category archives
+		if ( $query->is_category() ) {
+			$query->set( 'post_type', array( 'post', 'cpt_dishes' ) );
+		}
+		// Tag archives
+		if ( $query->is_tag() ) {
+			$query->set( 'post_type', array( 'post', 'cpt_dishes' ) );
+		}
+	}
+}
+
+/**
  * Include additional child theme files
  * 
  * Recipe meta box for simplified admin editing
