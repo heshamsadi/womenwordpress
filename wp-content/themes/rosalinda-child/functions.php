@@ -373,6 +373,24 @@ function rosalinda_child_output_recipe_schema() {
 add_action( 'wp_head', 'rosalinda_child_output_recipe_schema', 5 );
 
 /**
+ * Enable WordPress Categories and Tags for Dishes CPT
+ * 
+ * This allows recipes to use standard WordPress categories and tags
+ * alongside the Dishes Groups taxonomy. Priority 20 ensures this runs
+ * after the CPT is registered by ThemeREX Addons.
+ * 
+ * @since 1.0.0
+ */
+add_action( 'init', 'rosalinda_child_add_categories_to_dishes', 20 );
+function rosalinda_child_add_categories_to_dishes() {
+	// Add category support to Dishes CPT
+	register_taxonomy_for_object_type( 'category', 'cpt_dishes' );
+	
+	// Add tag support to Dishes CPT (optional)
+	register_taxonomy_for_object_type( 'post_tag', 'cpt_dishes' );
+}
+
+/**
  * Include additional child theme files
  * 
  * Recipe meta box for simplified admin editing
