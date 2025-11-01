@@ -375,16 +375,15 @@ add_action( 'wp_head', 'rosalinda_child_output_recipe_schema', 5 );
 /**
  * Include additional child theme files
  * 
- * Uncomment as you add more functionality:
- * - Recipe meta fields extensions
- * - Custom REST API endpoints
- * - AdSense integration
+ * Recipe meta box for simplified admin editing
  */
 
-// if ( file_exists( ROSALINDA_CHILD_DIR . '/inc/recipe-meta-fields.php' ) ) {
-// 	require_once ROSALINDA_CHILD_DIR . '/inc/recipe-meta-fields.php';
-// }
+// Recipe meta box - simplified admin interface
+if ( file_exists( get_stylesheet_directory() . '/inc/recipe-meta-box.php' ) ) {
+	require_once get_stylesheet_directory() . '/inc/recipe-meta-box.php';
+}
 
+// Additional includes (uncomment as needed):
 // if ( file_exists( ROSALINDA_CHILD_DIR . '/inc/recipe-rest-api.php' ) ) {
 // 	require_once ROSALINDA_CHILD_DIR . '/inc/recipe-rest-api.php';
 // }
