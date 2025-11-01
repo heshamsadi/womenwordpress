@@ -169,6 +169,21 @@ function rosalinda_child_setup() {
 add_action( 'after_setup_theme', 'rosalinda_child_setup', 11 );
 
 /**
+ * Force WordPress to use our child theme template for Dishes CPT
+ * Override ThemeREX plugin template
+ */
+add_filter( 'template_include', 'rosalinda_child_force_dishes_template', 999 );
+function rosalinda_child_force_dishes_template( $template ) {
+	if ( is_singular( 'cpt_dishes' ) ) {
+		$child_template = get_stylesheet_directory() . '/single-cpt_dishes.php';
+		if ( file_exists( $child_template ) ) {
+			return $child_template;
+		}
+	}
+	return $template;
+}
+
+/**
  * Generate Recipe JSON-LD Structured Data
  * 
  * Outputs schema.org Recipe markup for Google Rich Results

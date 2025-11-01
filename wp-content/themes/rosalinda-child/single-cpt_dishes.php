@@ -14,6 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// TEMPLATE CHECK: Add visible marker to confirm this template is loading
+echo '<!-- ROSALINDA CHILD TEMPLATE: single-cpt_dishes.php is active -->';
+
 get_header();
 
 while ( have_posts() ) :
@@ -23,9 +26,23 @@ while ( have_posts() ) :
 	$post_id = get_the_ID();
 	$meta = get_post_meta( $post_id, 'trx_addons_options', true );
 	
+	// DEBUG: Show what meta we have (remove this after checking)
+	if ( current_user_can( 'administrator' ) ) {
+		echo '<!-- DEBUG META DATA: ';
+		echo 'Post ID: ' . $post_id . ' | ';
+		echo 'Meta keys: ' . ( is_array( $meta ) ? implode( ', ', array_keys( $meta ) ) : 'NOT AN ARRAY' );
+		echo ' -->';
+	}
+	
 	// Extract meta fields with fallbacks
 	$prep_time = rosalinda_child_get_recipe_meta( $post_id, 'prep_time', '' );
-	$cook_time = rosalinda_child_get_recipe_meta( $post_id, 'time', '' );
+	
+	// Cook time - try cook_time first, then fall back to 'time' field
+	$cook_time = rosalinda_child_get_recipe_meta( $post_id, 'cook_time', '' );
+	if ( empty( $cook_time ) ) {
+		$cook_time = rosalinda_child_get_recipe_meta( $post_id, 'time', '' );
+	}
+	
 	$servings = rosalinda_child_get_recipe_meta( $post_id, 'servings', '' );
 	$difficulty = rosalinda_child_get_recipe_meta( $post_id, 'difficulty', '' );
 	$calories = rosalinda_child_get_recipe_meta( $post_id, 'calories', '' );
@@ -35,6 +52,22 @@ while ( have_posts() ) :
 	$cuisine = rosalinda_child_get_recipe_meta( $post_id, 'cuisine', '' );
 	$course = rosalinda_child_get_recipe_meta( $post_id, 'course', '' );
 	$spicy = rosalinda_child_get_recipe_meta( $post_id, 'spicy', '' );
+	$price = rosalinda_child_get_recipe_meta( $post_id, 'price', '' );
+	
+	// DEBUG: Show field values
+	if ( current_user_can( 'administrator' ) ) {
+		echo '<!-- VALUES: ';
+		echo 'prep_time=' . $prep_time . ' | ';
+		echo 'cook_time=' . $cook_time . ' | ';
+		echo 'servings=' . $servings . ' | ';
+		echo 'calories=' . $calories . ' | ';
+		echo 'difficulty=' . $difficulty . ' | ';
+		echo 'cuisine=' . $cuisine . ' | ';
+		echo 'course=' . $course . ' | ';
+		echo 'spicy=' . $spicy . ' | ';
+		echo 'price=' . $price;
+		echo ' -->';
+	}
 	
 	?>
 	
@@ -42,7 +75,12 @@ while ( have_posts() ) :
 		
 		<!-- Recipe Header -->
 		<header class="rc-recipe__header">
-			<h1 class="rc-recipe__title"><?php the_title(); ?></h1>
+			<h1 class="rc-recipe__title">
+				<?php the_title(); ?>
+				<?php if ( ! empty( $price ) ) : ?>
+					<span class="rc-recipe__price" style="color: #27ae60; font-size: 0.8em; margin-left: 15px;"><?php echo esc_html( $price ); ?></span>
+				<?php endif; ?>
+			</h1>
 			
 			<!-- Recipe Meta Facts -->
 			<ul class="rc-recipe__meta" role="list">
@@ -57,12 +95,32 @@ while ( have_posts() ) :
 					rosalinda_child_display_recipe_time( 'Cook', $cook_time, '🔥' );
 				}
 				
+				// Total Time (calculated from prep + cook)
+				if ( ! empty( $prep_time ) || ! empty( $cook_time ) ) {
+					$prep_mins = is_numeric( $prep_time ) ? intval( $prep_time ) : 0;
+					$cook_mins = is_numeric( $cook_time ) ? intval( $cook_time ) : 0;
+					$total_mins = $prep_mins + $cook_mins;
+					
+					if ( $total_mins > 0 ) {
+						rosalinda_child_display_recipe_time( 'Total', $total_mins . ' min', '⏲️' );
+					}
+				}
+				
 				// Servings
 				if ( ! empty( $servings ) ) {
 					echo '<li class="rc-recipe__meta-item">';
 					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">🍽️</span> ';
 					echo '<span class="rc-recipe__meta-label">Servings:</span> ';
 					echo '<span class="rc-recipe__meta-value">' . esc_html( $servings ) . '</span>';
+					echo '</li>';
+				}
+				
+				// Calories
+				if ( ! empty( $calories ) ) {
+					echo '<li class="rc-recipe__meta-item">';
+					echo '<span class="rc-recipe__meta-icon" aria-hidden="true">🔥</span> ';
+					echo '<span class="rc-recipe__meta-label">Calories:</span> ';
+					echo '<span class="rc-recipe__meta-value">' . esc_html( $calories ) . '</span>';
 					echo '</li>';
 				}
 				
@@ -169,35 +227,42 @@ while ( have_posts() ) :
 			<div class="rc-recipe__section rc-recipe__nutrition">
 				<h2 class="rc-recipe__section-title">Nutrition Facts</h2>
 				
-				<!-- Calories Highlight -->
-				<?php if ( ! empty( $calories ) ) : ?>
-					<div class="rc-recipe__calories">
-						<strong>Calories:</strong> <?php echo esc_html( $calories ); ?>
-					</div>
-				<?php endif; ?>
-				
-				<!-- Additional Nutrition Info -->
-				<?php if ( ! empty( $nutritions ) ) : ?>
+				<?php if ( ! empty( $calories ) || ! empty( $nutritions ) ) : ?>
 					<ul class="rc-recipe__nutrition-list">
-						<?php
-						// Split nutrition info by line break
-						$nutrition_array = array_filter( array_map( 'trim', explode( "\n", $nutritions ) ) );
+						<!-- Calories (always first if present) -->
+						<?php if ( ! empty( $calories ) ) : ?>
+							<li><strong>Calories:</strong> <?php echo esc_html( $calories ); ?> per serving</li>
+						<?php endif; ?>
 						
-						foreach ( $nutrition_array as $nutrition_item ) {
-							if ( ! empty( $nutrition_item ) ) {
-								// Check if it contains a colon (e.g., "Protein: 25g")
-								if ( strpos( $nutrition_item, ':' ) !== false ) {
-									list( $label, $value ) = explode( ':', $nutrition_item, 2 );
-									echo '<li><strong>' . esc_html( trim( $label ) ) . ':</strong> ' . esc_html( trim( $value ) ) . '</li>';
-								} else {
-									echo '<li>' . esc_html( $nutrition_item ) . '</li>';
+						<!-- Additional Nutrition Info -->
+						<?php if ( ! empty( $nutritions ) ) : ?>
+							<?php
+							// Split nutrition info by line break
+							$nutrition_array = array_filter( array_map( 'trim', explode( "\n", $nutritions ) ) );
+							
+							foreach ( $nutrition_array as $nutrition_item ) {
+								if ( ! empty( $nutrition_item ) ) {
+									// Check if it contains a colon (e.g., "Protein: 25g")
+									if ( strpos( $nutrition_item, ':' ) !== false ) {
+										list( $label, $value ) = explode( ':', $nutrition_item, 2 );
+										echo '<li><strong>' . esc_html( trim( $label ) ) . ':</strong> ' . esc_html( trim( $value ) ) . '</li>';
+									} else {
+										echo '<li>' . esc_html( $nutrition_item ) . '</li>';
+									}
 								}
 							}
-						}
-						?>
+							?>
+						<?php endif; ?>
 					</ul>
 				<?php else : ?>
 					<p><em>Nutritional information not available.</em></p>
+				<?php endif; ?>
+				
+				<!-- Dietary Tags -->
+				<?php if ( ! empty( $dietary_tags ) ) : ?>
+					<div class="rc-recipe__dietary-tags" style="margin-top: 15px; padding: 10px; background: #f0f6fc; border-radius: 4px;">
+						<strong>🏷️ Dietary Info:</strong> <?php echo esc_html( $dietary_tags ); ?>
+					</div>
 				<?php endif; ?>
 			</div>
 			
@@ -227,13 +292,6 @@ while ( have_posts() ) :
 				?>
 			</div>
 		</div>
-		
-		<!-- Dietary Tags -->
-		<?php if ( ! empty( $dietary_tags ) ) : ?>
-			<div class="rc-recipe__tags">
-				<strong>Dietary Info:</strong> <?php echo esc_html( $dietary_tags ); ?>
-			</div>
-		<?php endif; ?>
 		
 		<!-- Print Button -->
 		<button class="rc-recipe__print-btn" onclick="window.print()" aria-label="Print this recipe">
